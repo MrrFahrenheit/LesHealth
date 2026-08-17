@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["partialIndexes"]
 }
 
 datasource db {
@@ -28,6 +29,7 @@ model les_user {
   specialty                                                        String?                 @db.VarChar(100)
   license_number                                                   String?                 @db.VarChar(50)
   created_at                                                       DateTime?               @default(now()) @db.Timestamptz(6)
+  les_sesion                                                       les_sesion[]
   les_user_medical_info                                            les_user_medical_info?
   les_user_prescription_les_user_prescription_doctor_idToles_user  les_user_prescription[] @relation("les_user_prescription_doctor_idToles_user")
   les_user_prescription_les_user_prescription_patient_idToles_user les_user_prescription[] @relation("les_user_prescription_patient_idToles_user")
@@ -89,6 +91,21 @@ model les_user_sign {
   value      Decimal   @db.Decimal(8, 2)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   les_user   les_user  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model les_sesion {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String   @db.Uuid
+  refresh_token String   @unique
+  user_agent    String?
+  ip_address    String?  @db.VarChar(45)
+  is_revoked    Boolean  @default(false)
+  expires_at    DateTime @db.Timestamptz(6)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+  les_user      les_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_les_sesion_user_active", where: raw("(is_revoked = false)"))
 }
 
 enum routine_type {
