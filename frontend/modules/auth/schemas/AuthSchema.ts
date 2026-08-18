@@ -7,9 +7,9 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-    fullName:z.string(),
+    full_name:z.string(),
     email: z.string().email('Ingresa un correo valido'),
-    password:z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
+    password:z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>;

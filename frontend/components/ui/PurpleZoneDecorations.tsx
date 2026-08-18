@@ -41,14 +41,14 @@ export default function PurpleZoneDecorations({color = "#69409A"} : {color:strin
                 className="
                     absolute -bottom-10 -left-10
                     w-[170px] h-[170px] rounded-full
-                    border border-white/10 pointer-events-none
+                    border border-white/10 pointer-events-none overflow-hidden
                 "
             />
             <div
                 className="
                     absolute -bottom-20 -left-20
                     w-[220px] h-[220px] rounded-full
-                    border border-white/10 pointer-events-none
+                    border border-white/10 pointer-events-none 
                 "
             />
 

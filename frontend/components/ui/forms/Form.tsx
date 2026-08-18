@@ -28,7 +28,7 @@ export function Form<TFieldValues extends FieldValues>({
 
   return (
     <div className="max-w-md mx-auto p-1 rounded-lg shadow-sm w-full overflow-hidden">
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} className='max-h-full'>
         {/* Renderizado dinámico de los campos definidos en la config */}
         {config.fields.map((fieldProps) => (
           <InputField

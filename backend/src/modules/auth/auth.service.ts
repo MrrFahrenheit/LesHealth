@@ -33,6 +33,7 @@ export class AuthService {
             }
 
         } catch (error) {
+            console.log(error)
             // P2002 es el código de error de Prisma para "Unique constraint failed"
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
                 throw new ConflictException('El correo electrónico ya está registrado.');
