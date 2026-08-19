@@ -23,13 +23,13 @@ import Link from 'next/link';
 import { NavBarItem } from '../../types/navBarItem';
 
 export const navBarInfo: Array<NavBarItem> = [
-  { label: "Inicio", icon: Home, url: "/inicio" },
-  { label: "Mi Salud", icon: HeartPulse, url: "/mi-salud" },
-  { label: "Especialistas", icon: UserCheck, url: "/especialistas" },
-  { label: "Citas Médicas", icon: Calendar, url: "/citas-medicas" },
-  { label: "Prescripciones", icon: Pill, url: "/prescripciones" },
-  { label: "Educación", icon: GraduationCap, url: "/educacion" },
-  { label: "Comunidad", icon: Users, url: "/comunidad" },
+  { label: "Inicio", icon: Home, url: "/" },
+  { label: "Mi Salud", icon: HeartPulse, url: "/my-health" },
+  { label: "Especialistas", icon: UserCheck, url: "/specialists" },
+  { label: "Citas Médicas", icon: Calendar, url: "/medical-cites" },
+  { label: "Prescripciones", icon: Pill, url: "/prescriptions" },
+  { label: "Educación", icon: GraduationCap, url: "/education" },
+  { label: "Comunidad", icon: Users, url: "/comunity" },
 ];
 
 export default function LeftNavBar() {
