@@ -4,8 +4,6 @@ import { getErrorMessage } from "@/lib/nest-exceptions";
 
 export const registerUser = async (registerFormData: RegisterFormData) => {
     try {
-        console.log("EEH")
-        console.log(registerFormData)
         const result = await apiClient.post<RegisterFormData>("auth/register", registerFormData);
 
     } catch (err) {

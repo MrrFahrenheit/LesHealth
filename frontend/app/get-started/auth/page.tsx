@@ -5,6 +5,8 @@ import { LoginUser } from '@/modules/auth/api/login-user';
 import { registerUser } from '@/modules/auth/api/register-user';
 import { LoginFormData, loginSchema, RegisterFormData, registerSchema } from '@/modules/auth/schemas/AuthSchema';
 import { iFormPage } from '@/types/auth';
+import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { FieldValues } from 'react-hook-form';
 
@@ -12,6 +14,15 @@ type TabType = 'login' | 'register';
 
 export default function AuthPage() {
     const [activeTab, setActiveTab] = useState<TabType>('login');
+
+
+    const router = useRouter();
+        const pathName = usePathname();
+    
+        const handleNavigate = (site: string) => {
+            router.push(`${pathName}/${site}`);
+        }
+    
 
     // Diccionario de configuración para cada pestaña
     const activeTabConfig = {
@@ -74,10 +85,10 @@ export default function AuthPage() {
     const handleSubmit = async (data: FieldValues) => {
         try {
             const currentConfig = activeTabConfig[activeTab];
-            alert("E")
-
+                    
             const result = await currentConfig.fun(data);
 
+            handleNavigate('/les')
         } catch (error) {
             console.error(error);
         }

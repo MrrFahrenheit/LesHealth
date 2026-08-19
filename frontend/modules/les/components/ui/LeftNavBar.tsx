@@ -24,12 +24,12 @@ import { NavBarItem } from '../../types/navBarItem';
 
 export const navBarInfo: Array<NavBarItem> = [
   { label: "Inicio", icon: Home, url: "/" },
-  { label: "Mi Salud", icon: HeartPulse, url: "/my-health" },
-  { label: "Especialistas", icon: UserCheck, url: "/specialists" },
-  { label: "Citas Médicas", icon: Calendar, url: "/medical-cites" },
-  { label: "Prescripciones", icon: Pill, url: "/prescriptions" },
-  { label: "Educación", icon: GraduationCap, url: "/education" },
-  { label: "Comunidad", icon: Users, url: "/comunity" },
+  { label: "Mi Salud", icon: HeartPulse, url: "/les/my-health" },
+  { label: "Especialistas", icon: UserCheck, url: "/les/specialists" },
+  { label: "Citas Médicas", icon: Calendar, url: "/les/medical-cites" },
+  { label: "Prescripciones", icon: Pill, url: "/les/prescriptions" },
+  { label: "Educación", icon: GraduationCap, url: "/les/education" },
+  { label: "Comunidad", icon: Users, url: "/les/comunity" },
 ];
 
 export default function LeftNavBar() {
