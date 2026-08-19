@@ -23,9 +23,9 @@ export default async function Layout({ children }: LayoutProps<"/">) {
                     w-full 
                     min-h-screen 
                     pt-16           /* Espacio superior para el TopNavBar en móvil/desktop (64px aprox) */
-                    pb-20           /* Espacio inferior para el LeftNavBar si en móvil se vuelve bottom-bar */
+                    pb-20          /* Espacio inferior para el LeftNavBar si en móvil se vuelve bottom-bar */
                     md:pb-0         /* En desktop quitamos el padding inferior */
-                    md:pt-10        /* Opcional: más espacio superior en desktop si el TopNav es más alto */
+                    md:pt-10         /* Opcional: más espacio superior en desktop si el TopNav es más alto */
                     md:pl-[270px]   /* ¡CLAVE! Espacio izquierdo igual al ancho exacto de tu LeftNavBar */
                 ">
                     {children}

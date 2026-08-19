@@ -35,9 +35,15 @@ export const navBarInfo: Array<NavBarItem> = [
 export default function LeftNavBar() {
     // Estado para controlar el menú en pantallas pequeñas
     const [isOpen, setIsOpen] = useState(false);
+    const [actualIndex, setActualIndex] = useState<number>(0);
 
     // Cierra el menú al hacer clic en cualquier enlace (solo afecta en móvil)
-    const closeMenu = () => setIsOpen(false);
+    const closeMenu = () => {setIsOpen(false)};
+
+    const handleClickButton = (index:number) => {
+        closeMenu();
+        setActualIndex(index);
+    }
 
     return (
         <>
@@ -93,8 +99,7 @@ export default function LeftNavBar() {
                     />
                 </div>
 
-                {/* Menú de Navegación */}
-                <nav className="flex flex-col gap-2 flex-1 md:overflow-y-auto overflow-y-scroll md:max-h-full max-h-96 w-full md:overflow-x-hidden">
+                {/* Menú de Navegación */}                <nav className="flex flex-col gap-2 flex-1 md:overflow-y-auto overflow-y-scroll md:max-h-full max-h-96 w-full md:overflow-x-hidden">
                     {navBarInfo.map((current, index) => {
                         const Icon = current.icon;
                         
@@ -102,14 +107,14 @@ export default function LeftNavBar() {
                             <Link 
                                 key={index} 
                                 href={current.url}
-                                onClick={closeMenu} // Cierra el menú en móvil al hacer clic
-                                className="
+                                onClick={() => handleClickButton(index)} // Cierra el menú en móvil al hacer clic
+                                className={`
                                     flex items-center gap-4 
                                     px-4 py-3 
                                     rounded-xl 
                                     transition-all duration-200
-                                    hover:bg-white/10 hover:translate-x-1
-                                "
+                                    hover:bg-white/10 hover:translate-x-1 ${actualIndex == index && "bg-[#7A4D9A]"}`
+                                }
                             >
                                 <Icon className="w-5 h-5 text-gray-300" />
                                 <span className="font-medium text-sm text-gray-100">

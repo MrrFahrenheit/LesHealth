@@ -19,6 +19,7 @@
     "react-facebook": "^11.0.2",
     "react-hook-form": "^7.85.0",
     "react-icons": "^5.7.0",
+    "recharts": "^3.10.1",
     "zod": "^4.4.3",
     "zustand": "^5.0.15"
   },
