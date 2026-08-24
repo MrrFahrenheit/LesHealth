@@ -21,6 +21,7 @@ export class SesionGuard implements CanActivate {
       include: {
         les_user: {
           select: {
+            id:true,
             email: true,
             full_name: true,
           },

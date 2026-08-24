@@ -6,7 +6,7 @@ import { registerUser } from '@/modules/auth/api/register-user';
 import { LoginFormData, loginSchema, RegisterFormData, registerSchema } from '@/modules/auth/schemas/AuthSchema';
 import { iFormPage } from '@/types/auth';
 import { usePathname } from 'next/navigation';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { FieldValues } from 'react-hook-form';
 
@@ -20,7 +20,7 @@ export default function AuthPage() {
         const pathName = usePathname();
     
         const handleNavigate = (site: string) => {
-            router.push(`${pathName}/${site}`);
+            router.push(`${site}`);
         }
     
 

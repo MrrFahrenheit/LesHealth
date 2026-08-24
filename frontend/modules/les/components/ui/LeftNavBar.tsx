@@ -127,7 +127,7 @@ export default function LeftNavBar() {
                     {/* Botones inferiores (Configuración y Ayuda) */}
                     <div className="flex items-center w-full justify-center mt-1 border-t md:border-none border-white/10 pt-4 md:pt-0">
                         <Link 
-                            href=""
+                            href="configurations"
                             onClick={closeMenu}
                             className="
                                 flex items-center gap-4 

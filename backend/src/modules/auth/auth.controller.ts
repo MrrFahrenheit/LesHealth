@@ -38,8 +38,8 @@ export class AuthController {
     @Get('me')
     @UseGuards(SesionGuard)
     getMe(@CurrentUser() user: LesUserResponseDto) {
-        console.log(user)
-        return user;
+        const { id, ...userWithoutId } = user;
+        return userWithoutId;
     }
 
 }

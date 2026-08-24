@@ -1,3 +1,6 @@
+"use client";
+import SquareButton from "@/components/ui/buttons/SquareButton";
+import { PenBoxIcon } from "lucide-react";
 import { ReactNode } from "react";
 
 type HealthStatVariant =
@@ -17,15 +20,17 @@ interface HealthStatItemProps {
     badgeText: string;
     badgeColor: string;
     selected?: HealthStatVariant;
+    onSelect?: boolean;
+    onClickF?: () => void;
 }
 
 const selectedStyles: Record<HealthStatVariant, string> = {
-    purple: "border-[#69409A] ring-1 ring-[#69409A]/10",
-    blue: "border-blue-400 ring-1 ring-blue-400/10",
-    green: "border-green-400 ring-1 ring-green-400/10",
-    red: "border-red-400 ring-1 ring-red-400/10",
-    orange: "border-orange-400 ring-1 ring-orange-400/10",
-    yellow: "border-yellow-400 ring-1 ring-yellow-400/10",
+    purple: "border-[#69409A] ring-2 ring-[#69409A]/20 shadow-sm",
+    blue: "border-blue-500 ring-2 ring-blue-500/20 shadow-sm",
+    green: "border-green-500 ring-2 ring-green-500/20 shadow-sm",
+    red: "border-red-500 ring-2 ring-red-500/20 shadow-sm",
+    orange: "border-orange-500 ring-2 ring-orange-500/20 shadow-sm",
+    yellow: "border-yellow-500 ring-2 ring-yellow-500/20 shadow-sm",
 };
 
 export default function HealthStatItem({
@@ -37,7 +42,19 @@ export default function HealthStatItem({
     badgeText,
     badgeColor,
     selected,
+    onSelect = false,
+    onClickF = () => {}
 }: HealthStatItemProps) {
+    // Si está en estado onSelect, aplica el borde de la variante o uno púrpura por defecto
+    const getBorderStyle = () => {
+        if (onSelect) {
+            return selected
+                ? selectedStyles[selected]
+                : "border-[#69409A] ring-2 ring-[#69409A]/20 shadow-sm";
+        }
+        return selected ? selectedStyles[selected] : "border-gray-200/80";
+    };
+
     return (
         <div
             className={`
@@ -46,19 +63,16 @@ export default function HealthStatItem({
                 gap-4
                 md:justify-between
                 rounded-2xl
-                border
+                border-2
                 bg-white
                 p-4
-                transition-all
+                transition-all duration-200
                 hover:cursor-pointer
-                hover:bg-[#D2B5D8]
+                hover:bg-gray-50/80
                 max-h-32
-                ${
-                    selected
-                        ? selectedStyles[selected]
-                        : "border-transparent"
-                }
+                ${getBorderStyle()}
             `}
+            onClick={onClickF}
         >
             <div className="flex items-center gap-3">
                 <div
@@ -74,8 +88,8 @@ export default function HealthStatItem({
 
                 <div>
                     <p className="text-xs font-semibold text-gray-600">
-                        {title}
-                    </p>
+                            {title}
+                        </p>
 
                     <p className="text-md font-bold text-gray-900">
                         {value}{" "}
@@ -88,17 +102,19 @@ export default function HealthStatItem({
                 </div>
             </div>
 
-            <span
-                className={`
-                    px-2 py-1
-                    rounded-md
-                    text-xs font-bold
-                    whitespace-nowrap
-                    ${badgeColor}
-                `}
-            >
-                {badgeText}
-            </span>
+            <div className="flex w-full items-center justify-between">
+                <span
+                    className={`
+                        px-2 py-1
+                        rounded-md
+                        text-xs font-bold
+                        whitespace-nowrap
+                        ${badgeColor}
+                    `}
+                >
+                    {badgeText}
+                </span>
+            </div>
         </div>
     );
 }

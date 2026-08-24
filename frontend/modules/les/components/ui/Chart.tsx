@@ -1,5 +1,6 @@
 "use client";
 
+import { Sign } from "@/types/sign";
 import React from "react";
 import {
     LineChart,
@@ -11,17 +12,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-const data = [
-    { day: "Lun", value: 91 },
-    { day: "Mar", value: 96 },
-    { day: "Mié", value: 89 },
-    { day: "Jue", value: 94 },
-    { day: "Vie", value: 92 },
-    { day: "Sáb", value: 88 },
-    { day: "Dom", value: 93 },
-];
-
-export default function Chart() {
+export default function Chart({data} : {data:Array<any>}) {
     return (
         // ResponsiveContainer tomará el 100% del padre. 
         // El tamaño se controla desde el contenedor en page.tsx
@@ -29,7 +20,7 @@ export default function Chart() {
             <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis 
-                    dataKey="day" 
+                    dataKey="Day" 
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: "#9CA3AF", fontSize: 12 }} 

@@ -4,8 +4,8 @@ import { SignService } from "./sign.service";
 
 @Module({
     controllers: [SignController],
-    imports: [SignService],
+    providers: [SignService],
     exports: [SignService]
 })
 
-export class SignModules { }
+export class SignModule { }
