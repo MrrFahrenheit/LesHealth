@@ -1,72 +1,90 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/core/database/prisma.service";
 import { CreateSignDto } from "./dto/create-sign-dto";
 import { UpdateSignDto } from "./dto/update-sign-dto";
 
 @Injectable()
-
 export class SignService {
     constructor(private readonly prismaService: PrismaService) { }
 
     async create(createSignDto: CreateSignDto, userId: string) {
-        const result = await this.prismaService.les_user_sign.create({
-            data: {
-                ...createSignDto,
-                les_user: {
-                    connect: {
-                        id: userId
+        try {
+            const result = await this.prismaService.les_user_sign.create({
+                data: {
+                    ...createSignDto,
+                    les_user: {
+                        connect: {
+                            id: userId
+                        }
                     }
                 }
-            }
-        })
-
-        return result;
+            });
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException('Error creating sign');
+        }
     }
 
     async getUserSignsBySign(userId: string, signType: string) {
-        const list = await this.prismaService.les_user_sign.findMany({
-            where: {
-                patient_id: userId,
-                type: signType
-            }
-        })
-
-        return list;
+        try {
+            const list = await this.prismaService.les_user_sign.findMany({
+                where: {
+                    patient_id: userId,
+                    type: signType
+                }
+            });
+            return list;
+        } catch (error) {
+            throw new InternalServerErrorException('Error fetching user signs');
+        }
     }
 
     async getAllUserSigns(userId: string) {
-        const list = await this.prismaService.les_user_sign.findMany({
-            where: {
-                patient_id: userId,
-            },
-        });
+        try {
+            const list = await this.prismaService.les_user_sign.findMany({
+                where: {
+                    patient_id: userId,
+                },
+            });
 
-        const grouped = list.reduce((acc, item) => {
-            const key = item.type;
-            if (!acc[key]) {
-                acc[key] = [];
-            }
-            acc[key].push(item);
-            return acc;
-        }, {} as Record<string, typeof list>);
+            const grouped = list.reduce((acc, item) => {
+                const key = item.type;
+                if (!acc[key]) {
+                    acc[key] = [];
+                }
+                acc[key].push(item);
+                return acc;
+            }, {} as Record<string, typeof list>);
 
-        return grouped;
+            return grouped;
+        } catch (error) {
+            throw new InternalServerErrorException('Error fetching all user signs');
+        }
     }
 
     async deleteSign(signId: string) {
-        const result = await this.prismaService.les_user_sign.delete({ where: { id: signId }});
-
-        return result;
+        try {
+            const result = await this.prismaService.les_user_sign.delete({ where: { id: signId } });
+            return result;
+        } catch (error) {
+            throw new NotFoundException(`Sign with ID ${signId} not found`);
+        }
     }
 
-    async updateSign(updateSignDto:UpdateSignDto){
-        const result = await this.prismaService.les_user_sign.update({where:{
-            id:updateSignDto.id
-        }, data:{
-            type:updateSignDto.type,
-            value:updateSignDto.value
-        }});
-
-        return result;
+    async updateSign(updateSignDto: UpdateSignDto) {
+        try {
+            const result = await this.prismaService.les_user_sign.update({
+                where: {
+                    id: updateSignDto.id
+                },
+                data: {
+                    type: updateSignDto.type,
+                    value: updateSignDto.value
+                }
+            });
+            return result;
+        } catch (error) {
+            throw new NotFoundException(`Sign with ID ${updateSignDto.id} not found`);
+        }
     }
 }

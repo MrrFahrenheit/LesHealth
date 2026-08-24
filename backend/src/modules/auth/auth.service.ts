@@ -1,10 +1,10 @@
-import { PrismaService } from "src/core/database/prisma.service";
-import { AuthCreateUserDto } from "./dto/auth-create-user-dto";
-import { ConflictException, ForbiddenException, Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
-import { comparePassword, hashPassword } from "src/common/helpers/hash";
+import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { AuthLoginUserDto } from "./dto/auth-login-user-dto";
+import { comparePassword, hashPassword } from "src/common/helpers/hash";
+import { PrismaService } from "src/core/database/prisma.service";
 import { SesionService } from "../sesion/sesion.service";
+import { AuthCreateUserDto } from "./dto/auth-create-user-dto";
+import { AuthLoginUserDto } from "./dto/auth-login-user-dto";
 
 @Injectable()
 
@@ -71,12 +71,10 @@ export class AuthService {
             }
 
         } catch (error) {
-            // P2002 es el código de error de Prisma para "Unique constraint failed"
-            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-                throw new ConflictException('El correo electrónico ya está registrado.');
+            if (error instanceof UnauthorizedException) {
+                throw error;
             }
-
-            throw new InternalServerErrorException('Error al crear el usuario');
+            throw new InternalServerErrorException('Error al iniciar sesión');
         }
     }
 }

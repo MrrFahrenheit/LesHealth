@@ -1,7 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { PrismaService } from "src/core/database/prisma.service";
 import { SignJWT } from "jose";
-import { Prisma } from "@prisma/client";
+import { PrismaService } from "src/core/database/prisma.service";
 
 @Injectable()
 
@@ -39,7 +38,18 @@ export class SesionService {
 
             return createdSesion;
         } catch (error) {
-            throw new InternalServerErrorException('Error al crear el usuario');
+            throw new InternalServerErrorException('Error al crear la sesión');
+        }
+    }
+
+    async revoke(sessionId: string) {
+        try {
+            return await this.prismaService.les_sesion.update({
+                where: { id: sessionId },
+                data: { is_revoked: true }
+            });
+        } catch (error) {
+            throw new InternalServerErrorException('Error al revocar la sesión');
         }
     }
 }

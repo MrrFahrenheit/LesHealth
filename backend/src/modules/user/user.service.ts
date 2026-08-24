@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/core/database/prisma.service';
-import { Prisma, user_role } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -53,16 +53,20 @@ export class UserService {
     // Verificamos que el usuario exista
     await this.getUserProfile(patientId);
 
-    return this.prismaService.les_user_medical_info.upsert({
-      where: {
-        patient_id: patientId,
-      },
-      update: data,
-      create: {
-        ...data,
-        les_user: { connect: { id: patientId } },
-      },
-    });
+    try {
+      return await this.prismaService.les_user_medical_info.upsert({
+        where: {
+          patient_id: patientId,
+        },
+        update: data,
+        create: {
+          ...data,
+          les_user: { connect: { id: patientId } },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Error al actualizar la información médica');
+    }
   }
 
   // 6. Eliminar usuario (Y por CASCADE en la DB se lleva rutinas, citas, etc.)

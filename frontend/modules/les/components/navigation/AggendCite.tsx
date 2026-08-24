@@ -3,8 +3,10 @@ import { ArrowRight, Calendar } from 'lucide-react'
 import DoctorImage from '../../../../src/images/doctor.png';
 import React from 'react'
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function AggendCite() {
+
 
     const user = useUser();
 
@@ -21,14 +23,18 @@ export default function AggendCite() {
                                 Accede a especialistas, gestiona tus citas y cuida de tu salud de forma fácil y segura.
                             </p>
                             <div className="flex flex-wrap items-center gap-4">
+                                <Link href="/les/medical-cites">
                                 <button className="bg-[#5C328E] hover:bg-[#48276F] transition text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 text-xs">
                                     <Calendar className="w-4 h-4" />
                                     Agendar una cita
                                 </button>
+                                </Link>
+                                <Link href="/les/specialists">
                                 <button className="bg-white hover:bg-gray-50 transition text-[#5C328E] border border-gray-200 px-6 py-3 rounded-xl font-medium flex items-center gap-2 text-xs">
                                     Explorar especialistas
                                     <ArrowRight className="w-4 h-4" />
                                 </button>
+                                </Link>
                             </div>
                         </div>
                         {/* Ilustración (Placeholder) */}
