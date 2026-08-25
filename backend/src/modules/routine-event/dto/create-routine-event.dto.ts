@@ -3,17 +3,17 @@ import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString } from 'class-val
 
 export class CreateRoutineEventDto {
     @IsString()
-    routine_id: string;
+    routine_id!: string;
 
     @IsString()
-    title: string;
+    title!: string;
 
     @IsString()
     @IsOptional()
     description?: string;
 
     @IsEnum(routine_type)
-    event_type: routine_type;
+    event_type!: routine_type;
 
     @IsBoolean()
     @IsOptional()

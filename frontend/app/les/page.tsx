@@ -5,61 +5,73 @@ import ArticleCard from '@/modules/les/components/ui/ArticleCard';
 import HealthStatItem from '@/modules/les/components/ui/HealthStatItem';
 import QuickActionCard from '@/modules/les/components/ui/QuickActionCard';
 import SpecialistCard from '@/modules/les/components/ui/SpecialistCard';
-import { useUser } from '@/providers/userProvider'
+import { useUser } from '@/providers/userProvider';
 import {
-    Calendar, ArrowRight, Activity, Moon, Heart,
-    MapPin, Clock, Star, FileText, MessageCircle, ChevronRight
-} from 'lucide-react'; import React from 'react'
+    Activity,
+    ArrowRight,
+    Calendar,
+    ChevronRight,
+    Clock,
+    FileText,
+    Heart,
+    MapPin,
+    MessageCircle,
+    Moon
+} from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getPatientReservations } from '@/modules/les/api/reservations.api';
+import { getDoctors } from '@/modules/les/api/specialists.api';
+import { getUserSigns } from '@/modules/les/my-health/api/get-user-signs';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Loader } from '@/components/ui/Loader';
+
 
 export default function page() {
+    const lesUser = useUser() as any;
+    const userId = lesUser?.id || '';
 
-    const lesUser = useUser();
-    
+    const { data: reservations, isLoading: loadingReservations } = useQuery({
+        queryKey: ['reservations', userId],
+        queryFn: () => getPatientReservations(userId),
+        enabled: !!userId,
+    });
+
+    const { data: doctors, isLoading: loadingDoctors } = useQuery({
+        queryKey: ['doctors'],
+        queryFn: getDoctors,
+    });
+
+    const { data: signs, isLoading: loadingSigns } = useQuery({
+        queryKey: ['userSigns'],
+        queryFn: getUserSigns,
+    });
+
+    const getLatestSignValue = (signName: string, fallback: string) => {
+        if (!signs || !signs[signName] || signs[signName].length === 0) return fallback;
+        const list = signs[signName];
+        return list[list.length - 1].value;
+    };
+
     return (
         <div className="flex-1 overflow-y-auto bg-[#F8F9FC] p-6 lg:p-8">
-            {/* Contenedor Grid Principal: 2 columnas en izquierda, 1 en derecha (en pantallas grandes) */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-
-                {/* ============================== */}
-                {/* COLUMNA IZQUIERDA (Principal) */}
-                {/* ============================== */}
+                
+                {/* COLUMNA IZQUIERDA */}
                 <div className="xl:col-span-2 flex flex-col gap-8">
-
-                    {/* 1. Hero Section */}
                     <AggendCite />
 
-                    {/* 2. Acciones Rápidas */}
+                    {/* Acciones Rápidas */}
                     <section>
                         <h2 className="text-xl font-bold text-gray-900 mb-4">Acciones rápidas</h2>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <QuickActionCard
-                                icon={<Calendar className="text-purple-600 w-6 h-6" />}
-                                title="Agendar cita"
-                                subtitle="Reserva con especialistas"
-                                bgColor="bg-purple-100/50"
-                            />
-                            <QuickActionCard
-                                icon={<FileText className="text-blue-600 w-6 h-6" />}
-                                title="Consultar resultados"
-                                subtitle="Revisa tus análisis"
-                                bgColor="bg-blue-100/50"
-                            />
-                            <QuickActionCard
-                                icon={<Activity className="text-green-600 w-6 h-6" />}
-                                title="Mis prescripciones"
-                                subtitle="Gestiona tus medicamentos"
-                                bgColor="bg-green-100/50"
-                            />
-                            <QuickActionCard
-                                icon={<MessageCircle className="text-yellow-600 w-6 h-6" />}
-                                title="Chat con especialista"
-                                subtitle="Consulta en línea"
-                                bgColor="bg-yellow-100/50"
-                            />
+                            <QuickActionCard icon={<Calendar className="text-purple-600 w-6 h-6" />} title="Agendar cita" subtitle="Reserva con especialistas" bgColor="bg-purple-100/50" />
+                            <QuickActionCard icon={<FileText className="text-blue-600 w-6 h-6" />} title="Consultar resultados" subtitle="Revisa tus análisis" bgColor="bg-blue-100/50" />
+                            <QuickActionCard icon={<Activity className="text-green-600 w-6 h-6" />} title="Mis prescripciones" subtitle="Gestiona tus medicamentos" bgColor="bg-green-100/50" />
+                            <QuickActionCard icon={<MessageCircle className="text-yellow-600 w-6 h-6" />} title="Chat con especialista" subtitle="Consulta en línea" bgColor="bg-yellow-100/50" />
                         </div>
                     </section>
 
-                    {/* 3. Próximas Citas */}
+                    {/* Próximas Citas */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold text-gray-900">Próximas citas</h2>
@@ -68,41 +80,39 @@ export default function page() {
                             </button>
                         </div>
                         <div className="flex flex-col gap-4">
-                            {/* Cita Card */}
-                            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition">
-                                <div className="flex items-center gap-4">
-                                    <img src="https://i.pravatar.cc/150?img=11" alt="Dr" className="w-16 h-16 rounded-xl object-cover bg-blue-50" />
-                                    <div>
-                                        <span className="text-[#5C328E] text-xs font-bold uppercase tracking-wider bg-purple-50 px-2 py-1 rounded-md">Cardiología</span>
-                                        <h3 className="font-bold text-gray-900 mt-2">Dr. Andrés Castillo</h3>
-                                        <p className="text-sm text-gray-500 mb-2">Especialista en Cardiología</p>
-                                        <div className="flex items-center gap-4 text-xs font-medium text-gray-600">
-                                            <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> Mar, 19 Ago</span>
-                                            <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 10:30 AM</span>
-                                            <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> Consulta presencial</span>
+                            {loadingReservations ? (
+                                <Loader text="Cargando citas..." />
+                            ) : reservations && reservations.length > 0 ? (
+                                reservations.slice(0, 3).map((res) => (
+                                    <div key={res.id} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between group cursor-pointer hover:shadow-md transition">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xl">
+                                                {res.les_user_les_user_reservation_doctor_idToles_user?.full_name.charAt(0) || 'D'}
+                                            </div>
+                                            <div>
+                                                <span className="text-[#5C328E] text-xs font-bold uppercase tracking-wider bg-purple-50 px-2 py-1 rounded-md">
+                                                    {res.les_user_les_user_reservation_doctor_idToles_user?.specialty || 'General'}
+                                                </span>
+                                                <h3 className="font-bold text-gray-900 mt-2">{res.les_user_les_user_reservation_doctor_idToles_user?.full_name || 'Doctor'}</h3>
+                                                <p className="text-sm text-gray-500 mb-2">Estado: {res.status}</p>
+                                                <div className="flex items-center gap-4 text-xs font-medium text-gray-600">
+                                                    <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {new Date(res.reservation_date).toLocaleDateString()}</span>
+                                                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {new Date(res.reservation_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#5C328E] group-hover:text-white transition text-gray-400">
+                                            <ChevronRight className="w-5 h-5" />
                                         </div>
                                     </div>
-                                </div>
-                                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#5C328E] group-hover:text-white transition text-gray-400">
-                                    <ChevronRight className="w-5 h-5" />
-                                </div>
-                            </div>
-
-                            {/* No tienes más citas */}
-                            <div className="bg-gray-50/80 rounded-2xl p-5 border border-dashed border-gray-200 flex flex-col md:flex-row items-center justify-center gap-4 text-center md:text-left">
-                                <Calendar className="w-8 h-8 text-gray-400" />
-                                <div>
-                                    <h4 className="font-semibold text-gray-800">No tienes más citas próximas</h4>
-                                    <p className="text-sm text-gray-500">¿Por qué no agendas otra?</p>
-                                </div>
-                                <button className="md:ml-auto bg-white border border-[#5C328E] text-[#5C328E] px-4 py-2 rounded-xl text-sm font-medium hover:bg-purple-50 transition">
-                                    Buscar especialistas
-                                </button>
-                            </div>
+                                ))
+                            ) : (
+                                <EmptyState title="No tienes citas próximas" description="¿Por qué no agendas una nueva?" />
+                            )}
                         </div>
                     </section>
 
-                    {/* 4. Especialistas Recomendados */}
+                    {/* Especialistas Recomendados */}
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold text-gray-900">Especialistas recomendados</h2>
@@ -111,20 +121,21 @@ export default function page() {
                             </button>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <SpecialistCard name="Dra. Laura Méndez" specialty="Dermatóloga" rating="4.9" reviews="214" img="https://i.pravatar.cc/150?img=32" />
-                            <SpecialistCard name="Dra. Marina López" specialty="Pediatra" rating="4.8" reviews="189" img="https://i.pravatar.cc/150?img=5" />
-                            <SpecialistCard name="Dr. Ricardo Salazar" specialty="Nutricionista" rating="4.9" reviews="267" img="https://i.pravatar.cc/150?img=12" />
+                            {loadingDoctors ? (
+                                <Loader text="Cargando especialistas..." />
+                            ) : doctors && doctors.length > 0 ? (
+                                doctors.slice(0, 3).map((doc, idx) => (
+                                    <SpecialistCard key={doc.id} name={doc.full_name} specialty={doc.specialty || 'General'} rating="4.9" reviews="120" img={`https://i.pravatar.cc/150?img=${idx + 10}`} />
+                                ))
+                            ) : (
+                                <EmptyState title="Sin especialistas" description="No hay especialistas disponibles por el momento." />
+                            )}
                         </div>
                     </section>
-
                 </div>
 
-
-                {/* ============================== */}
-                {/* COLUMNA DERECHA (Sidebar) */}
-                {/* ============================== */}
+                {/* COLUMNA DERECHA */}
                 <div className="xl:col-span-1 flex flex-col gap-6">
-
                     {/* Resumen de salud */}
                     <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between mb-6">
@@ -134,23 +145,27 @@ export default function page() {
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-5">
-                            <HealthStatItem
-                                icon={<Heart className="w-5 h-5 text-red-500" />} iconBg="bg-red-50"
-                                title="Frecuencia cardíaca" value="72" unit="lpm"
-                                badgeText="Normal" badgeColor="bg-green-100 text-green-700"
-                            />
-                            <HealthStatItem
-                                icon={<Activity className="w-5 h-5 text-[#5C328E]" />} iconBg="bg-purple-50"
-                                title="Presión arterial" value="120/80" unit="mmHg"
-                                badgeText="Normal" badgeColor="bg-green-100 text-green-700"
-                            />
-                            <HealthStatItem
-                                icon={<Moon className="w-5 h-5 text-blue-500" />} iconBg="bg-blue-50"
-                                title="Calidad del sueño" value="7.8" unit="h"
-                                badgeText="Buena" badgeColor="bg-blue-100 text-blue-700"
-                            />
-                        </div>
+                        {loadingSigns ? (
+                            <Loader text="Cargando..." />
+                        ) : (
+                            <div className="flex flex-col gap-5">
+                                <HealthStatItem
+                                    icon={<Heart className="w-5 h-5 text-red-500" />} iconBg="bg-red-50"
+                                    title="Frecuencia cardíaca" value={getLatestSignValue("frecuencia-cardiaca", "--")} unit="lpm"
+                                    badgeText="Normal" badgeColor="bg-green-100 text-green-700"
+                                />
+                                <HealthStatItem
+                                    icon={<Activity className="w-5 h-5 text-[#5C328E]" />} iconBg="bg-purple-50"
+                                    title="Presión arterial" value={getLatestSignValue("presion", "--")} unit="mmHg"
+                                    badgeText="Normal" badgeColor="bg-green-100 text-green-700"
+                                />
+                                <HealthStatItem
+                                    icon={<Moon className="w-5 h-5 text-blue-500" />} iconBg="bg-blue-50"
+                                    title="Calidad del sueño" value={getLatestSignValue("calidad-sueno", "--")} unit="h"
+                                    badgeText="Buena" badgeColor="bg-blue-100 text-blue-700"
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* Educación y bienestar */}

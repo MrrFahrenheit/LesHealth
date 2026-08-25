@@ -1,12 +1,15 @@
 "use client";
 
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Activity, Check, Droplets, Heart, Moon, PlusIcon, Thermometer, Trash2, Weight, X } from "lucide-react";
-import { ReactNode, useEffect, useState, useMemo } from "react"; // <-- Importamos useMemo
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { createSign } from "../../my-health/api/create-sign";
+import { deleteSign } from "../../my-health/api/delete-sign";
+import { getUserSigns } from "../../my-health/api/get-user-signs";
+import { updateSign } from "../../my-health/api/update-sign";
 import { SignFormData, typeEnum } from "../../my-health/schemas/SignSchema";
 import Chart from "./Chart";
 import HealthStatItem from "./HealthStatItem";
-import { getUserSigns } from "../../my-health/api/get-user-signs";
 
 // 1. MEJORA: Separamos los tipos. Este es para la UI (menú seleccionado)
 type SignUI = {
@@ -41,12 +44,41 @@ export default function HealthSignsPanel() {
     });
 
     // 2. MEJORA: Tipamos correctamente el estado con los datos reales de la BD
-    const [userSigns, setUserSigns] = useState<SignRecord[]>([]);
+    const [userSigns, setUserSigns] = useState<any>();
 
     // Estado para saber qué ID estamos editando actualmente
     const [editingId, setEditingId] = useState<string | null>(null);
     // Estado para guardar temporalmente lo que el usuario escribe antes de confirmar
     const [editValue, setEditValue] = useState<number | string>("");
+
+    const { data, refetch, isLoading } = useQuery({
+        queryKey: ['userSigns'],
+        queryFn: getUserSigns
+    });
+
+    useEffect(() => {
+        if (data) {
+            setUserSigns(data);
+        }
+    }, [data]);
+
+    const createSignMutation = useMutation({
+        mutationFn: createSign,
+        onSuccess: () => refetch()
+    });
+
+    const updateSignMutation = useMutation({
+        mutationFn: ({ id, type, value }: { id: string, type: string, value: number }) => updateSign(id, type, value),
+        onSuccess: () => {
+            refetch();
+            setEditingId(null);
+        }
+    });
+
+    const deleteSignMutation = useMutation({
+        mutationFn: deleteSign,
+        onSuccess: () => refetch()
+    });
 
     const startEditing = (id: string, currentValue: number | string) => {
         setEditingId(id);
@@ -59,23 +91,16 @@ export default function HealthSignsPanel() {
     };
 
     const handleUpdate = async (id: string) => {
-        console.log("Simulando actualización en BD. ID:", id, "Nuevo valor:", editValue);
-        setEditingId(null); // Cerramos el modo edición
+        if (editValue !== "") {
+            updateSignMutation.mutate({ id, type: signSelected.name, value: Number(editValue) });
+        }
     };
 
     const handleDelete = async (id: string) => {
-        console.log("Simulando eliminación en BD. ID:", id);
+        if (window.confirm('¿Seguro que deseas eliminar este registro?')) {
+            deleteSignMutation.mutate(id);
+        }
     };
-
-    const getUserSignsInitial = async () => {
-        const list = await getUserSigns();
-        console.log("Datos de la API:", list);
-        setUserSigns(list);
-    }
-
-    useEffect(() => {
-        getUserSignsInitial();
-    }, []);
 
     useEffect(() => {
         setCreatingSign((prev) => ({
@@ -86,9 +111,7 @@ export default function HealthSignsPanel() {
 
     const handleCreate = async () => {
         if (creatingSign.value == null) return;
-        const result = await createSign(creatingSign);
-        console.log(result);
-        getUserSignsInitial();
+        createSignMutation.mutate(creatingSign);
     }
 
     const healthStats = [
@@ -159,13 +182,13 @@ export default function HealthSignsPanel() {
         setSignSelected(selectedSign);
     }
 
-    // Esto crea un nuevo arreglo SOLO con los registros que coinciden con la opción seleccionada.
     const chartData = useMemo(() => {
+        if (!userSigns) return [];
         const currentDataArray = userSigns[signSelected.name];
 
         if (!currentDataArray) return [];
 
-        return currentDataArray.map((record) => ({
+        return currentDataArray.map((record: any) => ({
             ...record,
             value: Number(record.value),
             Day: new Date(record.created_at).toLocaleDateString("en-US", {
@@ -177,8 +200,9 @@ export default function HealthSignsPanel() {
     // ^ React solo recalculará esto si `userSigns` o `signSelected.name` cambian.
 
     const getLatestValue = (signName: string, fallbackValue: string) => {
+        if (!userSigns) return fallbackValue;
         const list = userSigns[signName];
-        if (!list || list.length === 0) return "-";
+        if (!list || list.length === 0) return fallbackValue;
 
         // Retorna el último elemento agregado
         return list[list.length - 1].value;

@@ -1,35 +1,35 @@
 "use client";
 
-import { 
-  Home, 
-  HeartPulse, 
-  UserCheck, 
-  Calendar, 
-  FileText, 
-  Pill, 
-  GraduationCap, 
-  Users,
-  LucideIcon, 
-  SettingsIcon,
-  HelpCircleIcon,
-  Menu, // Ícono para el botón de abrir en móvil
-  X     // Ícono para el botón de cerrar en móvil
+import {
+    Home,
+    HeartPulse,
+    UserCheck,
+    Calendar,
+    FileText,
+    Pill,
+    GraduationCap,
+    Users,
+    LucideIcon,
+    SettingsIcon,
+    HelpCircleIcon,
+    Menu, // Ícono para el botón de abrir en móvil
+    X     // Ícono para el botón de cerrar en móvil
 } from "lucide-react";
 import PurpleZoneDecorations from '@/components/ui/PurpleZoneDecorations'
 import React, { useState } from 'react'
 import NegativeLesHealthLogo from "../../../../src/logos/negativo1_sin_fondo.svg";
 import Image from 'next/image';
-import Link from 'next/link'; 
+import Link from 'next/link';
 import { NavBarItem } from '../../types/navBarItem';
 
 export const navBarInfo: Array<NavBarItem> = [
-  { label: "Inicio", icon: Home, url: "/" },
-  { label: "Mi Salud", icon: HeartPulse, url: "/les/my-health" },
-  { label: "Especialistas", icon: UserCheck, url: "/les/specialists" },
-  { label: "Citas Médicas", icon: Calendar, url: "/les/medical-cites" },
-  { label: "Prescripciones", icon: Pill, url: "/les/prescriptions" },
-  { label: "Educación", icon: GraduationCap, url: "/les/education" },
-  { label: "Comunidad", icon: Users, url: "/les/comunity" },
+    { label: "Inicio", icon: Home, url: "/" },
+    { label: "Mi Salud", icon: HeartPulse, url: "/les/my-health" },
+    { label: "Especialistas", icon: UserCheck, url: "/les/specialists" },
+    { label: "Citas Médicas", icon: Calendar, url: "/les/medical-cites" },
+    { label: "Prescripciones", icon: Pill, url: "/les/prescriptions" },
+    { label: "Educación", icon: GraduationCap, url: "/les/education" },
+    { label: "Comunidad", icon: Users, url: "/les/comunity" },
 ];
 
 export default function LeftNavBar() {
@@ -38,9 +38,9 @@ export default function LeftNavBar() {
     const [actualIndex, setActualIndex] = useState<number>(0);
 
     // Cierra el menú al hacer clic en cualquier enlace (solo afecta en móvil)
-    const closeMenu = () => {setIsOpen(false)};
+    const closeMenu = () => { setIsOpen(false) };
 
-    const handleClickButton = (index:number) => {
+    const handleClickButton = (index: number) => {
         closeMenu();
         setActualIndex(index);
     }
@@ -48,7 +48,7 @@ export default function LeftNavBar() {
     return (
         <>
             {/* 1. Botón flotante para móviles (Invisible en 'md' hacia arriba) */}
-            <button 
+            <button
                 onClick={() => setIsOpen(true)}
                 className="md:hidden fixed top-3 left-4 z-40 p-2 bg-[#48276F] text-white rounded-lg shadow-md"
             >
@@ -57,7 +57,7 @@ export default function LeftNavBar() {
 
             {/* 2. Fondo oscuro (Overlay) para móviles */}
             {isOpen && (
-                <div 
+                <div
                     className="md:hidden fixed inset-0 bg-black/60 z-40"
                     onClick={closeMenu}
                 />
@@ -91,21 +91,21 @@ export default function LeftNavBar() {
 
                 {/* Logo */}
                 <div className='w-full flex justify-center md:pb-0'>
-                    <Image 
-                        src={NegativeLesHealthLogo} 
+                    <Image
+                        src={NegativeLesHealthLogo}
                         width={160}
-                        height={100} 
-                        alt="Les Health Logo" 
+                        height={100}
+                        alt="Les Health Logo"
                     />
                 </div>
 
                 {/* Menú de Navegación */}                <nav className="flex flex-col gap-2 flex-1 md:overflow-y-auto overflow-y-scroll md:max-h-full max-h-96 w-full md:overflow-x-hidden">
                     {navBarInfo.map((current, index) => {
                         const Icon = current.icon;
-                        
+
                         return (
-                            <Link 
-                                key={index} 
+                            <Link
+                                key={index}
                                 href={current.url}
                                 onClick={() => handleClickButton(index)} // Cierra el menú en móvil al hacer clic
                                 className={`
@@ -123,11 +123,11 @@ export default function LeftNavBar() {
                             </Link>
                         )
                     })}
-                    
+
                     {/* Botones inferiores (Configuración y Ayuda) */}
                     <div className="flex items-center w-full justify-center mt-1 border-t md:border-none border-white/10 pt-4 md:pt-0">
-                        <Link 
-                            href="configurations"
+                        <Link
+                            href="/les/configurations"
                             onClick={closeMenu}
                             className="
                                 flex items-center gap-4 
@@ -139,7 +139,7 @@ export default function LeftNavBar() {
                         >
                             <SettingsIcon className="w-5 h-5" />
                         </Link>
-                        <Link 
+                        <Link
                             href=""
                             onClick={closeMenu}
                             className="

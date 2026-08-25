@@ -19,7 +19,7 @@ const createUserStore = (initProps?: Partial<UserState>) => {
 export const UserContext = createContext<ReturnType<typeof createUserStore> | null>(null);
 
 export function UserProvider({ children, initialUser }: { children: React.ReactNode, initialUser: LesUser }) {
-  const storeRef = useRef<ReturnType<typeof createUserStore>>();
+  const storeRef = useRef<ReturnType<typeof createUserStore>>(null as any);
   if (!storeRef.current) {
     storeRef.current = createUserStore({ user: initialUser });
   }
