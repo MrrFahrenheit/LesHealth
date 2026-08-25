@@ -4,7 +4,7 @@ import { PrismaService } from 'src/core/database/prisma.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   // 2. Buscar usuario por Email (Crucial para el AuthService / Login)
   async findByEmail(email: string) {
@@ -19,6 +19,7 @@ export class UserService {
       where: { id },
       include: {
         les_user_medical_info: true, // Trae su info médica si es paciente
+        les_doctor_profile: true,    // Trae su perfil si es doctor
       },
     });
 
@@ -34,20 +35,22 @@ export class UserService {
   async getDoctors() {
     return this.prismaService.les_user.findMany({
       where: {
-        role: 'doctor', // Usa el Enum generado por Prisma
+        role: 'doctor',
       },
       select: {
         id: true,
+        email: true,
         full_name: true,
-        specialty: true,
-        license_number: true,
+
+        // JOIN a la relación de perfil del doctor
+        les_doctor_profile: true,
       },
-    });
+    })
   }
 
   // 5. Crear o Actualizar la información médica (Upsert)
   async upsertMedicalInfo(
-    patientId: string, 
+    patientId: string,
     data: Omit<Prisma.les_user_medical_infoCreateInput, 'les_user'>
   ) {
     // Verificamos que el usuario exista

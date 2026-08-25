@@ -12,9 +12,8 @@ export type Prescription = {
   };
 };
 
-export const getPatientPrescriptions = async (patientId: string): Promise<Prescription[]> => {
-  if (!patientId) return [];
-  const { data } = await apiClient.get(`/prescription/patient/${patientId}`);
+export const getPatientPrescriptions = async (): Promise<Prescription[]> => {
+  const { data } = await apiClient.get(`/prescription/patient/`);
   return data;
 };
 
@@ -22,4 +21,3 @@ export const createPrescription = async (prescriptionData: { doctor_id: string; 
   const { data } = await apiClient.post('/prescription', prescriptionData);
   return data;
 };
-

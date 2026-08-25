@@ -29,6 +29,7 @@ model les_user {
   specialty                                                        String?                 @db.VarChar(100)
   license_number                                                   String?                 @db.VarChar(50)
   created_at                                                       DateTime?               @default(now()) @db.Timestamptz(6)
+  les_doctor_profile                                               les_doctor_profile?
   les_sesion                                                       les_sesion[]
   les_user_medical_info                                            les_user_medical_info?
   les_user_prescription_les_user_prescription_doctor_idToles_user  les_user_prescription[] @relation("les_user_prescription_doctor_idToles_user")
@@ -108,6 +109,29 @@ model les_sesion {
   @@index([user_id], map: "idx_les_sesion_user_active", where: raw("(is_revoked = false)"))
 }
 
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model les_doctor_profile {
+  id                  String                @id @db.Uuid
+  user_id             String                @unique @db.Uuid
+  name                String                @db.VarChar(150)
+  specialty           String                @db.VarChar(100)
+  rating              Decimal               @default(0.0) @db.Decimal(2, 1)
+  reviews_count       Int                   @default(0)
+  experience_years    Int                   @default(0)
+  location            String                @db.VarChar(120)
+  modality            consultation_modality @default(Presencial)
+  availability_status String                @default("Disponible") @db.VarChar(100)
+  image_url           String?
+  is_featured         Boolean               @default(false)
+  created_at          DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime?             @default(now()) @db.Timestamptz(6)
+  les_user            les_user              @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_doctor_user")
+
+  @@index([is_featured], map: "idx_doctor_featured")
+  @@index([location], map: "idx_doctor_location")
+  @@index([specialty], map: "idx_doctor_specialty")
+}
+
 enum routine_type {
   exercise
   medication
@@ -118,4 +142,10 @@ enum user_role {
   doctor
   admin
   guest
+}
+
+enum consultation_modality {
+  Presencial
+  Virtual
+  Hibrida
 }

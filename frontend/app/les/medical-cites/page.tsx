@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-    ArrowRight, Bell, CalendarDays, Check, ChevronLeft, ChevronRight,
-    Clock3, FileText, MapPin, MessageCircle, MoreVertical, Plus, Video, X,
-} from "lucide-react";
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { getPatientReservations, createReservation, updateReservationStatus, Reservation } from '@/modules/les/api/reservations.api';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Loader } from '@/components/ui/Loader';
+import { Modal } from '@/components/ui/Modal';
+import { createReservation, getPatientReservations, Reservation, updateReservationStatus } from '@/modules/les/api/reservations.api';
 import { getDoctors } from '@/modules/les/api/specialists.api';
 import { useUser } from '@/providers/userProvider';
-import { Loader } from '@/components/ui/Loader';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Modal } from '@/components/ui/Modal';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+    Bell, CalendarDays,
+    Plus
+} from "lucide-react";
+import React, { useState } from "react";
 
 function AppointmentCard({
     appointment,
@@ -100,9 +100,8 @@ export default function Page() {
     });
 
     const { data: reservations, isLoading, refetch } = useQuery({
-        queryKey: ['reservations', userId],
-        queryFn: () => getPatientReservations(userId),
-        enabled: !!userId,
+        queryKey: ['reservations'],
+        queryFn: () => getPatientReservations(),
     });
 
     const { data: doctors } = useQuery({
@@ -228,7 +227,7 @@ export default function Page() {
                         <select required value={formData.doctor_id} onChange={e => setFormData({ ...formData, doctor_id: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm">
                             <option value="">Selecciona un especialista</option>
                             {doctors?.map(doc => (
-                                <option key={doc.id} value={doc.id}>{doc.full_name} - {doc.specialty || 'General'}</option>
+                                <option key={doc.id} value={doc.id}>{doc.full_name} - {doc.les_doctor_profile?.specialty || 'General'}</option>
                             ))}
                         </select>
                     </div>

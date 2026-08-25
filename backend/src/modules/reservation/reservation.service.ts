@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
@@ -7,13 +7,12 @@ import { UpdateReservationDto } from './dto/update-reservation.dto';
 export class ReservationService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createReservationDto: CreateReservationDto) {
+  async create(createReservationDto: CreateReservationDto, patient_id: string) {
     try {
-      const { patient_id, doctor_id, reservation_date, status, notes } = createReservationDto;
+      const { doctor_id, reservation_date, notes } = createReservationDto;
       return await this.prismaService.les_user_reservation.create({
         data: {
           reservation_date,
-          status,
           notes,
           les_user_les_user_reservation_patient_idToles_user: {
             connect: { id: patient_id }

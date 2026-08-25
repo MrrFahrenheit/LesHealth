@@ -1,8 +1,8 @@
-import React from 'react';
 import { getMe } from '@/components/api/get-user-me';
 import LeftNavBar from '@/modules/les/components/ui/LeftNavBar';
 import TopNavBar from '@/modules/les/components/ui/TopNavBar';
 import { UserProvider } from '@/providers/userProvider';
+import React from 'react';
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
     const user = await getMe();

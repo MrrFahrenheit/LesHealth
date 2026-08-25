@@ -1,20 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ReservationService } from './reservation.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { CurrentUser } from 'src/common/decorators/current-user-decorator';
+import { SesionGuard } from 'src/common/guards/sesion.guard';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { ReservationService } from './reservation.service';
+import { LesUserResponseDto } from 'src/common/dto/les-user-dto';
 
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
   @Post()
-  create(@Body() createReservationDto: CreateReservationDto) {
-    return this.reservationService.create(createReservationDto);
+  @UseGuards(SesionGuard)
+  create(@Body() createReservationDto: CreateReservationDto, @CurrentUser() user: LesUserResponseDto) {
+    return this.reservationService.create(createReservationDto, user.id);
   }
 
-  @Get('patient/:patientId')
-  findAllByPatient(@Param('patientId') patientId: string) {
-    return this.reservationService.findAllByPatient(patientId);
+  @Get('patient')
+  @UseGuards(SesionGuard)
+  findAllByPatient(@CurrentUser() user:LesUserResponseDto) {
+    return this.reservationService.findAllByPatient(user.id);
   }
 
   @Get('doctor/:doctorId')

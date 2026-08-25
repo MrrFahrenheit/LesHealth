@@ -55,7 +55,7 @@ export class AuthService {
                 throw new UnauthorizedException("Credenciales Incorrectas");
             }
 
-            const isValidPassword = comparePassword(authLoginUserDto.password, result.password_hash);
+            const isValidPassword = await comparePassword(authLoginUserDto.password, result.password_hash);
 
             if (!isValidPassword) {
                 throw new UnauthorizedException("Credenciales incorrectas.");

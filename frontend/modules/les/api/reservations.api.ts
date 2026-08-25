@@ -13,9 +13,9 @@ export type Reservation = {
   };
 };
 
-export const getPatientReservations = async (patientId: string): Promise<Reservation[]> => {
-  if (!patientId) return [];
-  const { data } = await apiClient.get(`/reservation/patient/${patientId}`);
+export const getPatientReservations = async (): Promise<Reservation[]> => {
+  const { data } = await apiClient.get(`/reservation/patient`);
+  console.log(data)
   return data;
 };
 

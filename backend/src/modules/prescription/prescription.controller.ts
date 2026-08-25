@@ -1,20 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PrescriptionService } from './prescription.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
+import { PrescriptionService } from './prescription.service';
+
+import { CurrentUser } from 'src/common/decorators/current-user-decorator';
+import { SesionGuard } from 'src/common/guards/sesion.guard';
+import { LesUserResponseDto } from 'src/common/dto/les-user-dto';
 
 @Controller('prescription')
 export class PrescriptionController {
   constructor(private readonly prescriptionService: PrescriptionService) {}
 
   @Post()
-  create(@Body() createPrescriptionDto: CreatePrescriptionDto) {
-    return this.prescriptionService.create(createPrescriptionDto);
+  @UseGuards(SesionGuard)
+  create(@Body() createPrescriptionDto: CreatePrescriptionDto, @CurrentUser() user: any) {
+    return this.prescriptionService.create(createPrescriptionDto, user.id);
   }
 
-  @Get('patient/:patientId')
-  findAllByPatient(@Param('patientId') patientId: string) {
-    return this.prescriptionService.findAllByPatient(patientId);
+  @Get('patient')
+  @UseGuards(SesionGuard)
+  findAllByPatient(@CurrentUser() user:LesUserResponseDto) {
+    return this.prescriptionService.findAllByPatient(user.id);
   }
 
   @Get('doctor/:doctorId')

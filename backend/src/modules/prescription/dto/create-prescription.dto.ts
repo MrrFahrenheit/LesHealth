@@ -1,8 +1,7 @@
 import { IsDateString, IsOptional, IsString } from 'class-validator';
 
 export class CreatePrescriptionDto {
-    @IsString()
-    patient_id: string;
+    // patient_id is injected via the token in the controller
 
     @IsString()
     doctor_id: string;

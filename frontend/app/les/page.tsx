@@ -1,11 +1,17 @@
 "use client";
 
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Loader } from '@/components/ui/Loader';
+import { getPatientReservations } from '@/modules/les/api/reservations.api';
+import { getDoctors } from '@/modules/les/api/specialists.api';
 import AggendCite from '@/modules/les/components/navigation/AggendCite';
 import ArticleCard from '@/modules/les/components/ui/ArticleCard';
 import HealthStatItem from '@/modules/les/components/ui/HealthStatItem';
 import QuickActionCard from '@/modules/les/components/ui/QuickActionCard';
 import SpecialistCard from '@/modules/les/components/ui/SpecialistCard';
+import { getUserSigns } from '@/modules/les/my-health/api/get-user-signs';
 import { useUser } from '@/providers/userProvider';
+import { useQuery } from '@tanstack/react-query';
 import {
     Activity,
     ArrowRight,
@@ -14,16 +20,9 @@ import {
     Clock,
     FileText,
     Heart,
-    MapPin,
     MessageCircle,
     Moon
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { getPatientReservations } from '@/modules/les/api/reservations.api';
-import { getDoctors } from '@/modules/les/api/specialists.api';
-import { getUserSigns } from '@/modules/les/my-health/api/get-user-signs';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Loader } from '@/components/ui/Loader';
 
 
 export default function page() {
@@ -32,7 +31,7 @@ export default function page() {
 
     const { data: reservations, isLoading: loadingReservations } = useQuery({
         queryKey: ['reservations', userId],
-        queryFn: () => getPatientReservations(userId),
+        queryFn: () => getPatientReservations(),
         enabled: !!userId,
     });
 
@@ -125,7 +124,7 @@ export default function page() {
                                 <Loader text="Cargando especialistas..." />
                             ) : doctors && doctors.length > 0 ? (
                                 doctors.slice(0, 3).map((doc, idx) => (
-                                    <SpecialistCard key={doc.id} name={doc.full_name} specialty={doc.specialty || 'General'} rating="4.9" reviews="120" img={`https://i.pravatar.cc/150?img=${idx + 10}`} />
+                                    <SpecialistCard key={doc.id} name={doc.full_name} specialty={doc.les_doctor_profile?.specialty || 'General'} rating="4.9" reviews="120" img={`https://i.pravatar.cc/150?img=${idx + 10}`} />
                                 ))
                             ) : (
                                 <EmptyState title="Sin especialistas" description="No hay especialistas disponibles por el momento." />
