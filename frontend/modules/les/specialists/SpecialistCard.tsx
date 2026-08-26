@@ -1,5 +1,6 @@
-import { Clock3, Heart, Link, MapPin, Star, UsersRound, Video } from "lucide-react";
+import { Clock3, Heart, MapPin, Star, UsersRound, Video } from "lucide-react";
 import { Doctor } from "../api/specialists.api";
+import Link from "next/link";
 
 export function SpecialistCard({ specialist }: { specialist: Doctor }) {
     const profile = specialist.les_doctor_profile;
@@ -80,7 +81,7 @@ export function SpecialistCard({ specialist }: { specialist: Doctor }) {
 
             <Link
                 href={`/les/user/${specialist.id}`}
-                className="mt-5 flex w-full items-center justify-center rounded-xl bg-[#F4EEFA] px-4 py-2.5 text-sm font-semibold text-[#69409A] transition hover:bg-[#69409A] hover:text-white active:scale-[0.98]"
+                className="mt-5 flex w-full items-center justify-center rounded-xl bg-[#F4EEFA] px-4 py-2.5 text-lg font-semibold text-[#69409A] transition hover:bg-[#69409A] hover:text-white active:scale-[0.98]"
             >
                 Ver perfil
             </Link>

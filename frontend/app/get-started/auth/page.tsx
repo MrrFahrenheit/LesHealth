@@ -5,9 +5,8 @@ import { LoginUser } from '@/modules/auth/api/login-user';
 import { registerUser } from '@/modules/auth/api/register-user';
 import { LoginFormData, loginSchema, RegisterFormData, registerSchema } from '@/modules/auth/schemas/AuthSchema';
 import { iFormPage } from '@/types/auth';
-import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FieldValues } from 'react-hook-form';
 
 type TabType = 'login' | 'register';
@@ -16,18 +15,10 @@ export default function AuthPage() {
     const [activeTab, setActiveTab] = useState<TabType>('login');
 
 
-    const router = useRouter();
-        const pathName = usePathname();
-    
-        const handleNavigate = (site: string) => {
-            router.push(`${site}`);
-        }
-    
-
     // Diccionario de configuración para cada pestaña
     const activeTabConfig = {
         login: {
-            fun: (data:any) => LoginUser(data as LoginFormData),
+            fun: (data: any) => LoginUser(data as LoginFormData),
 
             config: {
                 title: 'Iniciar Sesión',
@@ -51,7 +42,7 @@ export default function AuthPage() {
             submitButtonText: "Iniciar Sesión"
         },
         register: {
-            fun: (data:any) => registerUser(data as RegisterFormData),
+            fun: (data: any) => registerUser(data as RegisterFormData),
 
             config: {
                 title: 'Registrarse',
@@ -82,13 +73,16 @@ export default function AuthPage() {
         }
     };
 
+    const router = useRouter();
+
     const handleSubmit = async (data: FieldValues) => {
         try {
             const currentConfig = activeTabConfig[activeTab];
-                    
-            const result = await currentConfig.fun(data);
-
-            handleNavigate('/les')
+            const success = await currentConfig.fun(data);
+            
+            if (success) {
+                router.push('/les');
+            }
         } catch (error) {
             console.error(error);
         }

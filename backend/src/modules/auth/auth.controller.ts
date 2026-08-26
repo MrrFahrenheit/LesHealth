@@ -17,7 +17,6 @@ export class AuthController {
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
     async create(@Body() authCreateUserDto: AuthCreateUserDto, @Res({ passthrough: true }) response: Response) {
-        console.log(authCreateUserDto)
         const result = await this.authService.create(authCreateUserDto);
 
         addCookie(response, "sesion_token", result.sesionCreated.refresh_token);

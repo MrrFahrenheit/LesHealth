@@ -143,7 +143,6 @@ export default function Page() {
                                             />
 
                                             <button
-                                                type="button"
                                                 className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#69409A] text-white shadow-sm"
                                                 aria-label="Editar foto"
                                             >

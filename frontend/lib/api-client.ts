@@ -17,3 +17,18 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Interceptor de respuesta para manejar errores 401 y redireccionar
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      // Redirigir al inicio de sesión (solo en cliente)
+      if (typeof window !== 'undefined') {
+        window.location.href = '/get-started/auth';
+      }
+    }
+    return Promise.reject(error);
+  }
+);

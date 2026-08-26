@@ -120,7 +120,7 @@ export default function HealthSignsPanel() {
             icon: <Heart className="w-5 h-5 text-red-500" />,
             iconBg: "bg-red-50",
             title: "Frecuencia cardíaca",
-            value: "72",
+            value: "--",
             unit: "lpm",
             badgeText: "Normal",
             badgeColor: "bg-green-100 text-green-700",
@@ -131,7 +131,7 @@ export default function HealthSignsPanel() {
             icon: <Activity className="w-5 h-5 text-[#5C328E]" />,
             iconBg: "bg-purple-50",
             title: "Presión arterial",
-            value: "120/80",
+            value: "--",
             unit: "mmHg",
             badgeText: "Normal",
             badgeColor: "bg-green-100 text-green-700"
@@ -141,7 +141,7 @@ export default function HealthSignsPanel() {
             icon: <Droplets className="w-5 h-5 text-blue-500" />,
             iconBg: "bg-blue-50",
             title: "Glucosa",
-            value: "92",
+            value: "--",
             unit: "mg/dL",
             badgeText: "Normal",
             badgeColor: "bg-green-100 text-green-700"
@@ -151,7 +151,7 @@ export default function HealthSignsPanel() {
             icon: <Thermometer className="w-5 h-5 text-orange-500" />,
             iconBg: "bg-orange-50",
             title: "Temperatura",
-            value: "36.6",
+            value: "--",
             unit: "°C",
             badgeText: "Normal",
             badgeColor: "bg-green-100 text-green-700"
@@ -161,7 +161,7 @@ export default function HealthSignsPanel() {
             icon: <Moon className="w-5 h-5 text-indigo-500" />,
             iconBg: "bg-indigo-50",
             title: "Calidad del sueño",
-            value: "7.8",
+            value: "--",
             unit: "h",
             badgeText: "Buena",
             badgeColor: "bg-blue-100 text-blue-700"
@@ -171,7 +171,7 @@ export default function HealthSignsPanel() {
             icon: <Weight className="w-5 h-5 text-teal-500" />,
             iconBg: "bg-teal-50",
             title: "Peso",
-            value: "68",
+            value: "--",
             unit: "kg",
             badgeText: "Estable",
             badgeColor: "bg-blue-100 text-blue-700"

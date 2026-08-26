@@ -5,6 +5,7 @@ export function middleware(request: NextRequest) {
   console.log('🚀 MIDDLEWARE EJECUTÁNDOSE EN:', request.nextUrl.pathname);
 
   const token = request.cookies.get('sesion_token')?.value;
+  
   const { pathname } = request.nextUrl;
 
   const isPublicRoute = pathname === '/' || pathname.startsWith('/get-started');

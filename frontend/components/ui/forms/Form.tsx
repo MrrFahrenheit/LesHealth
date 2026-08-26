@@ -9,7 +9,7 @@ import { iFormPage } from '@/types/auth';
 interface AuthFormProps<TFieldValues extends FieldValues> {
   config: iFormPage<TFieldValues>;
   schema: ZodSchema<TFieldValues>;
-  defaultValues: UseFormProps<TFieldValues>['defaultValues'];
+  defaultValues?: UseFormProps<TFieldValues>['defaultValues'];
   onSubmit: (data: TFieldValues) => void;
   submitButtonText?: string;
 }

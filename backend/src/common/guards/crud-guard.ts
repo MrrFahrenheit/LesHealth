@@ -1,13 +1,13 @@
 // src/common/guards/crud.guard.ts
 import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  ForbiddenException,
-  UnauthorizedException,
+    CanActivate,
+    ExecutionContext,
+    ForbiddenException,
+    Injectable,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { CHECK_OWNER_KEY, OwnerCheckOptions } from '../decorators/check-owner.decorator';
+import { CHECK_OWNER_KEY, OwnerCheckOptions } from '../decorators/check-owner-decorator';
 
 @Injectable()
 export class CrudGuard implements CanActivate {

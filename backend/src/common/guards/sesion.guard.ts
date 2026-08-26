@@ -8,10 +8,12 @@ export class SesionGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
+    const response = context.switchToHttp().getResponse();
     
     const token = request.cookies['sesion_token'];
 
     if (!token) {
+      response.clearCookie('sesion_token', { httpOnly: true, sameSite: 'lax', path: '/' });
       throw new UnauthorizedException('Sesión no encontrada');
     }
 
@@ -30,6 +32,7 @@ export class SesionGuard implements CanActivate {
     });
 
     if (!session || session.is_revoked || new Date() > session.expires_at) {
+      response.clearCookie('sesion_token', { httpOnly: true, sameSite: 'lax', path: '/' });
       throw new UnauthorizedException('Sesión inválida o expirada');
     }
 

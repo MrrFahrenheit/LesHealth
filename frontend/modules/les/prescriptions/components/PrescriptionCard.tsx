@@ -1,3 +1,6 @@
+import { Bell, CalendarDays, FileText, MoreVertical, Pill } from "lucide-react";
+import { Prescription } from "../../api/prescriptions.api";
+
 export function PrescriptionCard({ prescription }: { prescription: Prescription }) {
     const d = new Date(prescription.prescribed_date);
     const dateStr = d.toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
