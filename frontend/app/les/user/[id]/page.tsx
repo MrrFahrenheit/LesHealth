@@ -138,7 +138,7 @@ export default function Page() {
                                         <div className="relative">
                                             <img
                                                 src={user.les_doctor_profile?.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=random`}
-                                                alt={`Perfil de ${user.full_name}`}
+                                                alt="Perfil"
                                                 className="h-24 w-24 rounded-2xl border-4 border-white object-cover shadow-md"
                                             />
 

@@ -6,20 +6,21 @@ import { PrescriptionService } from './prescription.service';
 import { CurrentUser } from 'src/common/decorators/current-user-decorator';
 import { SesionGuard } from 'src/common/guards/sesion.guard';
 import { LesUserResponseDto } from 'src/common/dto/les-user-dto';
+import { CrudGuard } from 'src/common/guards/crud-guard';
+import { CheckOwner } from 'src/common/decorators/check-owner-decorator';
 
 @Controller('prescription')
+@UseGuards(SesionGuard, CrudGuard)
 export class PrescriptionController {
-  constructor(private readonly prescriptionService: PrescriptionService) {}
+  constructor(private readonly prescriptionService: PrescriptionService) { }
 
   @Post()
-  @UseGuards(SesionGuard)
   create(@Body() createPrescriptionDto: CreatePrescriptionDto, @CurrentUser() user: any) {
     return this.prescriptionService.create(createPrescriptionDto, user.id);
   }
 
   @Get('patient')
-  @UseGuards(SesionGuard)
-  findAllByPatient(@CurrentUser() user:LesUserResponseDto) {
+  findAllByPatient(@CurrentUser() user: LesUserResponseDto) {
     return this.prescriptionService.findAllByPatient(user.id);
   }
 
@@ -34,11 +35,14 @@ export class PrescriptionController {
   }
 
   @Patch(':id')
+  @CheckOwner({ source: 'body', fieldPath: 'patient_id' })
   update(@Param('id') id: string, @Body() updatePrescriptionDto: UpdatePrescriptionDto) {
+    
     return this.prescriptionService.update(id, updatePrescriptionDto);
   }
 
   @Delete(':id')
+  @CheckOwner({ source: 'body', fieldPath: 'patient_id' })
   remove(@Param('id') id: string) {
     return this.prescriptionService.remove(id);
   }

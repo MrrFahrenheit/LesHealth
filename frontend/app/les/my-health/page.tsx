@@ -1,6 +1,3 @@
-// src/app/les/dashboard/page.tsx (o la ruta que uses)
-// ¡No lleva "use client"! Es un Server Component.
-
 import Chart from "@/modules/les/components/ui/Chart";
 import HealthSignsPanel from "@/modules/les/components/ui/HealthSignsPanel";
 import HealthStatItem from "@/modules/les/components/ui/HealthStatItem";

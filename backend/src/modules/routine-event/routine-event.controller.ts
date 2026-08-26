@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { RoutineEventService } from './routine-event.service';
 import { CreateRoutineEventDto } from './dto/create-routine-event.dto';
 import { UpdateRoutineEventDto } from './dto/update-routine-event.dto';
+import { SesionGuard } from 'src/common/guards/sesion.guard';
+import { CheckOwner } from 'src/common/decorators/check-owner-decorator';
 
 @Controller('routine-event')
+@UseGuards(SesionGuard)
 export class RoutineEventController {
   constructor(private readonly routineEventService: RoutineEventService) {}
 
@@ -23,11 +26,13 @@ export class RoutineEventController {
   }
 
   @Patch(':id')
+  @CheckOwner({ source: 'body', fieldPath: 'patient_id' })
   update(@Param('id') id: string, @Body() updateRoutineEventDto: UpdateRoutineEventDto) {
     return this.routineEventService.update(id, updateRoutineEventDto);
   }
 
   @Delete(':id')
+  @CheckOwner({ source: 'body', fieldPath: 'patient_id' })
   remove(@Param('id') id: string) {
     return this.routineEventService.remove(id);
   }

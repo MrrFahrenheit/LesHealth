@@ -1,8 +1,9 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 import { UvService } from "./uv.service";
+import { SesionGuard } from "src/common/guards/sesion.guard";
 
 @Controller('uv')
-
+@UseGuards(SesionGuard)
 export class UvController {
     constructor(private readonly uvService: UvService) { }
 
