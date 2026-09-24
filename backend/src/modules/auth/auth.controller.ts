@@ -43,8 +43,8 @@ export class AuthController {
     @Get('me')
     @UseGuards(SesionGuard)
     getMe(@CurrentUser() user: LesUserResponseDto) {
-        const { id, ...userWithoutId } = user;
-        return userWithoutId;
+        // Debemos retornar el ID también para que el frontend lo use en React Query
+        return user;
     }
 
     @Post('logout')
