@@ -4,9 +4,10 @@ import { CreateRoutineDto } from './dto/create-routine.dto';
 import { UpdateRoutineDto } from './dto/update-routine.dto';
 import { SesionGuard } from 'src/common/guards/sesion.guard';
 import { CheckOwner } from 'src/common/decorators/check-owner-decorator';
+import { EmailVerifiedGuard } from 'src/common/guards/email-verified.guard';
 
 @Controller('routine')
-@UseGuards(SesionGuard)
+@UseGuards(SesionGuard, EmailVerifiedGuard)
 export class RoutineController {
   constructor(private readonly routineService: RoutineService) {}
 

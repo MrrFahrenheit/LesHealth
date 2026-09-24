@@ -6,9 +6,10 @@ import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationService } from './reservation.service';
 import { LesUserResponseDto } from 'src/common/dto/les-user-dto';
 import { CheckOwner } from 'src/common/decorators/check-owner-decorator';
+import { EmailVerifiedGuard } from 'src/common/guards/email-verified.guard';
 
 @Controller('reservation')
-@UseGuards(SesionGuard)
+@UseGuards(SesionGuard, EmailVerifiedGuard)
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 

@@ -6,13 +6,14 @@ import { LesUserResponseDto } from "src/common/dto/les-user-dto";
 import { CreateSignDto } from "./dto/create-sign-dto";
 import { UpdateSignDto } from "./dto/update-sign-dto";
 import { DeleteSignDto } from "./dto/delete-sign-dto";
+import { EmailVerifiedGuard } from "src/common/guards/email-verified.guard";
 
 @Controller("sign")
+@UseGuards(SesionGuard, EmailVerifiedGuard)
 export class SignController {
     constructor(private readonly signService: SignService) { }
 
     @Post()
-    @UseGuards(SesionGuard)
     async create(@CurrentUser() user: LesUserResponseDto, @Body() createSignDto: CreateSignDto) {
         console.log(user)
         const result = await this.signService.create(createSignDto, user.id);
@@ -21,7 +22,6 @@ export class SignController {
     }
 
     @Get()
-    @UseGuards(SesionGuard)
     async getUserSignsByType(@CurrentUser() user: LesUserResponseDto, @Query(":type") type: string) {
         const signs = await this.signService.getUserSignsBySign(user.id, type);
 
@@ -29,13 +29,11 @@ export class SignController {
     }
 
     @Get('all')
-    @UseGuards(SesionGuard)
     async getAllUserSigns(@CurrentUser() user: LesUserResponseDto) {
         return await this.signService.getAllUserSigns(user.id);
     }
 
     @Delete()
-    @UseGuards(SesionGuard)
     async deleteUserSign(@CurrentUser() user: LesUserResponseDto, @Body() deleteSignDto: DeleteSignDto) {
         if (user.id !== deleteSignDto.user_id) {
             return new UnauthorizedException("");
@@ -46,7 +44,6 @@ export class SignController {
     }
 
     @Post()
-    @UseGuards(SesionGuard)
     async updateUserSign(@CurrentUser() user: LesUserResponseDto, @Body() updateUserSignDto: UpdateSignDto) {
         if (user.id !== updateUserSignDto.user_id) {
             return new UnauthorizedException("");

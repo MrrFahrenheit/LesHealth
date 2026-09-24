@@ -8,9 +8,10 @@ import { SesionGuard } from 'src/common/guards/sesion.guard';
 import { LesUserResponseDto } from 'src/common/dto/les-user-dto';
 import { CrudGuard } from 'src/common/guards/crud-guard';
 import { CheckOwner } from 'src/common/decorators/check-owner-decorator';
+import { EmailVerifiedGuard } from 'src/common/guards/email-verified.guard';
 
 @Controller('prescription')
-@UseGuards(SesionGuard, CrudGuard)
+@UseGuards(SesionGuard, CrudGuard, EmailVerifiedGuard)
 export class PrescriptionController {
   constructor(private readonly prescriptionService: PrescriptionService) { }
 
