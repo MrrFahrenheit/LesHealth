@@ -2,11 +2,11 @@
 import axios from 'axios';
 
 export const apiClient = axios.create({
-  baseURL: process.env.BACKEND_URL ,
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials:true
+  withCredentials: true,
 });
 
 // Interceptor para inyectar el JWT Token que devuelve NestJS
