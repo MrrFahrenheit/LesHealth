@@ -54,7 +54,7 @@ export class AuthController {
         if (req.sesionId) {
             await this.authService.logout(req.sesionId);
         }
-        response.clearCookie('sesion_token', { httpOnly: true, sameSite: 'lax', path: '/' });
+        response.clearCookie('sesion_token', { httpOnly: true, sameSite: 'none', secure: true, path: '/' });
 
         return { message: "Sesión cerrada con éxito" };
     }
