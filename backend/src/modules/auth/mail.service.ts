@@ -11,22 +11,36 @@ export class MailService {
   }
 
   private async init() {
-    // Para entornos de desarrollo usamos Ethereal Email (crea una cuenta de prueba gratis al vuelo)
     try {
-      const testAccount = await nodemailer.createTestAccount();
-      this.transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user: testAccount.user, // generated ethereal user
-          pass: testAccount.pass, // generated ethereal password
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
-      this.logger.log('MailService inicializado con Ethereal. ¡Listo para pruebas!');
+      // Si tenemos credenciales en las variables de entorno (Producción), usamos esas
+      if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+        this.transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.SMTP_PORT || '587', 10),
+          secure: process.env.SMTP_PORT === '465', // true para 465, false para 587
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+        this.logger.log('MailService inicializado para Producción (Usando variables de entorno)');
+      } else {
+        // Fallback: Entorno de desarrollo con Ethereal Email
+        const testAccount = await nodemailer.createTestAccount();
+        this.transporter = nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false, 
+          auth: {
+            user: testAccount.user,
+            pass: testAccount.pass,
+          },
+          tls: {
+            rejectUnauthorized: false,
+          },
+        });
+        this.logger.log('MailService inicializado con Ethereal (Entorno de Desarrollo/Pruebas). ¡Módulo listo!');
+      }
     } catch (err) {
       this.logger.error('Error inicializando MailService', err);
     }
@@ -56,10 +70,12 @@ export class MailService {
     };
 
     const info = await this.transporter.sendMail(mailOptions);
-
-    // Ethereal proporciona una URL para previsualizar el correo (¡Genial para desarrollo local sin usar un email real!)
     this.logger.log(`Mensaje enviado: ${info.messageId}`);
-    this.logger.log(`URL de previsualización (ABRIR PARA VER EL CÓDIGO): ${nodemailer.getTestMessageUrl(info)}`);
+    
+    // Solo mostramos URL de previsualización si NO usamos credenciales reales
+    if (!process.env.SMTP_USER) {
+      this.logger.log(`URL de previsualización (ABRIR PARA VER EL CÓDIGO): ${nodemailer.getTestMessageUrl(info)}`);
+    }
   }
 }
 
