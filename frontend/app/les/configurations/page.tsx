@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import { logoutUser } from "@/modules/les/configurations/lib/logout";
 import {
     ArrowRight,
     Bell,
@@ -17,6 +18,7 @@ import {
     UserRoundCheck,
     Users,
 } from "lucide-react";
+import React from "react";
 
 type SettingRowProps = {
     icon: React.ElementType;
@@ -24,6 +26,7 @@ type SettingRowProps = {
     description: string;
     action?: React.ReactNode;
     danger?: boolean;
+    onClick?: () => void;
 };
 
 function SettingRow({
@@ -32,9 +35,13 @@ function SettingRow({
     description,
     action,
     danger = false,
+    onClick
 }: SettingRowProps) {
     return (
-        <div className="flex items-center justify-between gap-4 px-5 py-4">
+        <div 
+            className={`flex items-center justify-between gap-4 px-5 py-4 ${onClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+            onClick={onClick}
+        >
             <div className="flex min-w-0 items-center gap-4">
                 <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
@@ -388,6 +395,7 @@ export default function Page() {
                                 title="Cerrar sesión"
                                 description="Salir de tu cuenta en este dispositivo."
                                 danger
+                                onClick={logoutUser}
                                 action={
                                     <ChevronRight
                                         size={18}

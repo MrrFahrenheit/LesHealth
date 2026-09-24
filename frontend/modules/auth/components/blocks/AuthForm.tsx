@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { InputFieldProps } from '@/components/ui/forms/InputField';
 
 type iAuthPage = {

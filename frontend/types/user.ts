@@ -1,4 +1,6 @@
 export type LesUser = {
-    full_name:string,
-    email:string
+    id: string;
+    full_name: string;
+    email: string;
+    isemailverified: boolean;
 }

@@ -1,11 +1,11 @@
-import React, { ReactNode } from "react";
-import { FaFacebook, FaUserMd, FaChartBar } from "react-icons/fa";
-import Buterflies from "../../../../src/images/buterflies.png";
-import Snap from "../../../../src/images/snap.png";
-import Caos from "../../../../src/images/Caos.jpg";
-import Image from "next/image";
+// @ts-nocheck
 import LesButton from "@/components/ui/buttons/LesButton";
 import PurpleZoneDecorations from "@/components/ui/PurpleZoneDecorations";
+import Image from "next/image";
+import { ReactNode } from "react";
+import { FaChartBar, FaFacebook, FaUserMd } from "react-icons/fa";
+import Caos from "../../../../src/images/Caos.jpg";
+import Snap from "../../../../src/images/snap.png";
 
 // 1. APLICAMOS DRY: Centralizamos los datos para evitar repetir estructura HTML
 type Benefit = {

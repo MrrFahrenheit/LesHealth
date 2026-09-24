@@ -1,18 +1,24 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards } from "@nestjs/common";
-import { AuthCreateUserDto } from "./dto/auth-create-user-dto";
-import { AuthService } from "./auth.service";
-import { AuthLoginUserDto } from "./dto/auth-login-user-dto";
-import { SesionService } from "../sesion/sesion.service";
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from "@nestjs/common";
 import type { Response } from "express";
-import { addCookie } from "src/common/helpers/cookies";
-import { SesionGuard } from "src/common/guards/sesion.guard";
 import { CurrentUser } from "src/common/decorators/current-user-decorator";
 import { LesUserResponseDto } from "src/common/dto/les-user-dto";
+import { SesionGuard } from "src/common/guards/sesion.guard";
+import { addCookie } from "src/common/helpers/cookies";
+import { AuthService } from "./auth.service";
+import { AuthCreateUserDto } from "./dto/auth-create-user-dto";
+import { AuthLoginUserDto } from "./dto/auth-login-user-dto";
 
 @Controller('auth')
 
 export class AuthController {
     constructor(private readonly authService: AuthService) { };
+
+    @Post('verify-email')
+    @UseGuards(SesionGuard)
+    @HttpCode(HttpStatus.OK)
+    async verifyEmail(@CurrentUser() user: LesUserResponseDto, @Body('otp') otp: string) {
+        return await this.authService.verifyEmail(user.id, otp);
+    }
 
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
@@ -41,4 +47,15 @@ export class AuthController {
         return userWithoutId;
     }
 
+    @Post('logout')
+    @UseGuards(SesionGuard)
+    @HttpCode(HttpStatus.OK)
+    async logout(@Req() req: any, @Res({ passthrough: true }) response: Response) {
+        if (req.sesionId) {
+            await this.authService.logout(req.sesionId);
+        }
+        response.clearCookie('sesion_token', { httpOnly: true, sameSite: 'lax', path: '/' });
+
+        return { message: "Sesión cerrada con éxito" };
+    }
 }

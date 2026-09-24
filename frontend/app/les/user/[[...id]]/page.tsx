@@ -76,14 +76,20 @@ const quickActions = [
     },
 ];
 
+import { useUser } from '@/providers/userProvider';
+
 export default function Page() {
     const params = useParams();
-    const id = params.id as string;
+    const currentUser = useUser();
+    
+    const urlId = Array.isArray(params.id) ? params.id[0] : params.id;
+    const targetId = urlId || currentUser?.id;
+    const isOwnProfile = targetId === currentUser?.id;
 
     const { data: user, isLoading } = useQuery({
-        queryKey: ['userProfile', id],
-        queryFn: () => getUserProfile(id),
-        enabled: !!id,
+        queryKey: ['userProfile', targetId],
+        queryFn: () => getUserProfile(targetId as string),
+        enabled: !!targetId,
     });
 
     if (isLoading) {
@@ -113,13 +119,15 @@ export default function Page() {
                         </p>
                     </div>
 
-                    <button
-                        type="button"
-                        className="flex w-fit items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-[#69409A] hover:text-[#69409A]"
-                    >
-                        <Edit3 size={16} />
-                        Editar perfil
-                    </button>
+                    {isOwnProfile && (
+                        <button
+                            type="button"
+                            className="flex w-fit items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-[#69409A] hover:text-[#69409A]"
+                        >
+                            <Edit3 size={16} />
+                            Editar perfil
+                        </button>
+                    )}
                 </div>
 
                 <div className="mt-7 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -142,12 +150,14 @@ export default function Page() {
                                                 className="h-24 w-24 rounded-2xl border-4 border-white object-cover shadow-md"
                                             />
 
-                                            <button
-                                                className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#69409A] text-white shadow-sm"
-                                                aria-label="Editar foto"
-                                            >
-                                                <Edit3 size={14} />
-                                            </button>
+                                            {isOwnProfile && (
+                                                <button
+                                                    className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#69409A] text-white shadow-sm"
+                                                    aria-label="Editar foto"
+                                                >
+                                                    <Edit3 size={14} />
+                                                </button>
+                                            )}
                                         </div>
 
                                         <div className="pb-1">
@@ -203,13 +213,15 @@ export default function Page() {
                                     </p>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    className="flex items-center gap-1 text-xs font-semibold text-[#69409A]"
-                                >
-                                    Editar
-                                    <Edit3 size={14} />
-                                </button>
+                                {isOwnProfile && (
+                                    <button
+                                        type="button"
+                                        className="flex items-center gap-1 text-xs font-semibold text-[#69409A]"
+                                    >
+                                        Editar
+                                        <Edit3 size={14} />
+                                    </button>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-1 divide-y divide-gray-100 sm:grid-cols-2 sm:divide-y-0">
@@ -412,8 +424,9 @@ export default function Page() {
                     </section>
 
                     {/* SIDEBAR */}
-                    <aside className="space-y-5">
-                        {/* Profile completion */}
+                    {isOwnProfile && (
+                        <aside className="space-y-5">
+                            {/* Profile completion */}
                         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-sm font-bold text-[#69409A]">
@@ -571,7 +584,8 @@ export default function Page() {
                                 className="text-gray-400"
                             />
                         </button>
-                    </aside>
+                        </aside>
+                    )}
                 </div>
             </div>
         </main>

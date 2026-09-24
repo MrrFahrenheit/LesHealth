@@ -26,6 +26,7 @@ export class SesionGuard implements CanActivate {
             id:true,
             email: true,
             full_name: true,
+            isemailverified: true,
           },
         },
       },
@@ -39,6 +40,7 @@ export class SesionGuard implements CanActivate {
     // 4. 🚀 ADJUNTAR EL USUARIO AL REQUEST
     // Ahora cualquier controlador o decorador posterior tendrá acceso a req.user
     request.user = session.les_user;
+    request.sesionId = session.id; // Adjuntar el ID de la sesión al request
 
     return true;
   }

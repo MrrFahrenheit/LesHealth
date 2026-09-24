@@ -1,6 +1,4 @@
-import { user_role } from "@prisma/client";
-import { Type } from "class-transformer";
-import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, IsUUID } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword } from "class-validator";
 
 export class AuthCreateUserDto {
     @IsEmail()
@@ -23,4 +21,5 @@ export class AuthCreateUserDto {
     @IsString()
     @IsOptional()
     license_number!: string;
+
 }

@@ -10,8 +10,7 @@ export const registerUser = async (registerFormData: RegisterFormData) => {
         }
     } catch (err) {
         const parsedError = getErrorMessage(err, "m");
-        console.log(parsedError)
-        return false;
+        throw new Error(parsedError);
     }
     return false;
 }

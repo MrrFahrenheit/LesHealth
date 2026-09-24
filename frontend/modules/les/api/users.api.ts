@@ -20,7 +20,7 @@ export type UserProfile = {
 };
 
 export const getUserProfile = async (id: string): Promise<UserProfile> => {
-  const { data } = await apiClient.get(`/user/${id}`);
+  const { data } = await apiClient.get(`/user/${encodeURIComponent(id)}`);
   return data;
 };
 

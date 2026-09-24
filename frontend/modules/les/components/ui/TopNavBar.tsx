@@ -1,50 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Bell, Search, Sun } from "lucide-react";
-import { getLupusUVRisk, LupusUVRisk } from "@/lib/get-lupus-uv-risk";
+import { Bell, Search } from "lucide-react";
+import UVIndex from "./UVIndex";
+import { useUser } from "@/providers/userProvider";
+import Link from "next/link";
 
 export default function TopNavBar() {
-    const [uvRisk, setUvRisk] = useState<LupusUVRisk | null>(null);
-    const [loadingUV, setLoadingUV] = useState(true);
-
-    useEffect(() => {
-        const getUV = () => {
-            if (!navigator.geolocation) {
-                setLoadingUV(false);
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    try {
-                        const { latitude, longitude } = position.coords;
-
-                        const result = await getLupusUVRisk(
-                            latitude,
-                            longitude
-                        );
-
-                        setUvRisk(result);
-                    } catch (error) {
-                        console.error("Error obteniendo UV:", error);
-                    } finally {
-                        setLoadingUV(false);
-                    }
-                },
-                (error) => {
-                    console.error(
-                        "No se pudo obtener la ubicación:",
-                        error
-                    );
-
-                    setLoadingUV(false);
-                }
-            );
-        };
-
-        getUV();
-    }, []);
+    const lesUser = useUser();
 
     return (
         <header
@@ -85,31 +47,7 @@ export default function TopNavBar() {
             <div className="flex items-center gap-5">
 
                 {/* Índice UV */}
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-yellow-50">
-                        <Sun className="w-5 h-5 text-yellow-500" />
-                    </div>
-
-                    <div className="hidden lg:flex flex-col leading-tight">
-                        <span className="text-xs text-gray-400">
-                            Índice UV
-                        </span>
-
-                        {loadingUV ? (
-                            <span className="text-sm text-gray-500">
-                                Consultando...
-                            </span>
-                        ) : uvRisk ? (
-                            <span className="text-sm font-semibold text-gray-700">
-                                {uvRisk.uvIndex} · {uvRisk.label}
-                            </span>
-                        ) : (
-                            <span className="text-sm text-gray-500">
-                                No disponible
-                            </span>
-                        )}
-                    </div>
-                </div>
+                <UVIndex />
 
                 {/* Notificaciones */}
                 <button className="relative text-gray-300 hover:text-white transition-colors">
@@ -127,6 +65,7 @@ export default function TopNavBar() {
                 </button>
 
                 {/* Perfil */}
+                <Link href={`/les/user`} className="flex items-center gap-2">
                 <button
                     className="
                         flex items-center justify-center
@@ -142,8 +81,9 @@ export default function TopNavBar() {
                         ring-2 ring-white/20
                     "
                 >
-                    <span className="text-sm">UX</span>
+                    <span className="text-sm">{lesUser?.full_name.charAt(0) || 'U'}</span>
                 </button>
+                </Link>
             </div>
         </header>
     );

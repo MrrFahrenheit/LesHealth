@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/nest-exceptions";
 import { LoginFormData, RegisterFormData } from "../schemas/AuthSchema";
 
 export const LoginUser = async (loginFormData: LoginFormData) => {
@@ -8,7 +9,7 @@ export const LoginUser = async (loginFormData: LoginFormData) => {
             return true;
         }
     } catch (error) {
-        return false;
+        throw new Error(getErrorMessage(error, "No se pudo iniciar sesión."));
     }
     return false;
 }

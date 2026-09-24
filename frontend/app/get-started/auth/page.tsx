@@ -8,17 +8,20 @@ import { iFormPage } from '@/types/auth';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FieldValues } from 'react-hook-form';
+import { ZodSchema } from 'zod';
 
 type TabType = 'login' | 'register';
 
 export default function AuthPage() {
     const [activeTab, setActiveTab] = useState<TabType>('login');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [generalError, setGeneralError] = useState<string | null>(null);
 
 
     // Diccionario de configuración para cada pestaña
     const activeTabConfig = {
         login: {
-            fun: (data: any) => LoginUser(data as LoginFormData),
+            fun: isLoading ? () => null : (data: any) => LoginUser(data as LoginFormData),
 
             config: {
                 title: 'Iniciar Sesión',
@@ -39,10 +42,10 @@ export default function AuthPage() {
                 ],
             } as iFormPage<LoginFormData>,
             schema: loginSchema,
-            submitButtonText: "Iniciar Sesión"
+            submitButtonText: isLoading ? "Iniciando..." : "Iniciar Sesión"
         },
         register: {
-            fun: (data: any) => registerUser(data as RegisterFormData),
+            fun: isLoading? () => null : (data: any) => registerUser(data as RegisterFormData),
 
             config: {
                 title: 'Registrarse',
@@ -69,22 +72,26 @@ export default function AuthPage() {
                 ]
             } as iFormPage<RegisterFormData>,
             schema: registerSchema,
-            submitButtonText: "Registrarse"
+            submitButtonText: isLoading ? "Registrando..." : "Registrarse"
         }
     };
 
     const router = useRouter();
 
     const handleSubmit = async (data: FieldValues) => {
+        setIsLoading(true);
+        setGeneralError(null);
         try {
             const currentConfig = activeTabConfig[activeTab];
             const success = await currentConfig.fun(data);
-            
             if (success) {
                 router.push('/les');
             }
         } catch (error) {
             console.error(error);
+            setGeneralError(error instanceof Error ? error.message : 'Ocurrió un error inesperado.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -129,11 +136,14 @@ export default function AuthPage() {
 
             </div>
 
-            {/* Renderizado del formulario utilizando el diccionario y spread operator */}
             <div className="w-full">
                 <Form
-                    {...activeTabConfig[activeTab]}
+                    // @ts-ignore
+                    config={activeTabConfig[activeTab].config as iFormPage<FieldValues>}
+                    schema={activeTabConfig[activeTab].schema as ZodSchema<FieldValues>}
                     onSubmit={handleSubmit}
+                    submitButtonText={activeTabConfig[activeTab].submitButtonText}
+                    generalError={generalError ?? undefined}
                 />
             </div>
         </div>
