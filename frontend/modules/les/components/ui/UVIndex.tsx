@@ -41,7 +41,8 @@ export default function UVIndex() {
                     );
 
                     setLoadingUV(false);
-                }
+                },
+                { timeout: 10000 }
             );
         };
 
