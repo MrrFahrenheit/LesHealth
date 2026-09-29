@@ -12,19 +12,19 @@ export default function TopNavBar() {
         <header
             className="
                 fixed top-0 right-0
-                w-[80%]
-                h-[8%] min-h-[64px]
-                flex items-center justify-between
+                w-full md:w-[85%]
+                min-h-[64px]
+                flex items-center justify-end md:justify-between
                 z-10
-                px-8 py-2
-                backdrop-blur-md
-                border-b border-white/10
+                pl-16 md:pl-8 pr-4 md:pr-8 py-2
+                backdrop-blur-md bg-white/70
+                border-b border-gray-200/50
             "
         >
             {/* Búsqueda */}
-            <nav className="w-3/5 flex items-center justify-center">
-                <div className="flex items-center w-4/5 h-8 bg-gray-200 rounded-md overflow-hidden px-3">
-                    <Search className="h-5 w-5 text-gray-500" />
+            <nav className="hidden md:flex flex-1 max-w-md items-center justify-start mr-4">
+                <div className="flex items-center w-full h-9 bg-white border border-gray-200 rounded-full overflow-hidden px-3 shadow-sm">
+                    <Search className="h-4 w-4 text-gray-500" />
 
                     <input
                         className="
@@ -34,32 +34,32 @@ export default function TopNavBar() {
                             outline-none
                             text-black
                             placeholder-gray-500
-                            ml-3
+                            ml-2
                             secondary-font
                         "
                         type="text"
-                        placeholder="Buscar especialistas, artículos, síntomas..."
+                        placeholder="Buscar especialistas, síntomas..."
                     />
                 </div>
             </nav>
 
             {/* Información + acciones */}
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3 md:gap-5">
 
                 {/* Índice UV */}
                 <UVIndex />
 
                 {/* Notificaciones */}
-                <button className="relative text-gray-300 hover:text-white transition-colors">
-                    <Bell className="h-6 w-6" />
+                <button className="relative text-gray-500 hover:text-[#5C328E] transition-colors p-2 rounded-full hover:bg-purple-50">
+                    <Bell className="h-5 w-5 md:h-6 md:w-6" />
 
                     <span
                         className="
-                            absolute top-0 right-0
+                            absolute top-1 right-1 md:top-0 md:right-0
                             w-2.5 h-2.5
                             bg-[#69409A]
                             rounded-full
-                            border-2 border-gray-900
+                            border-2 border-white
                         "
                     />
                 </button>
@@ -69,7 +69,7 @@ export default function TopNavBar() {
                 <button
                     className="
                         flex items-center justify-center
-                        w-10 h-10
+                        w-8 h-8 md:w-10 md:h-10
                         rounded-full
                         bg-gradient-to-tr
                         from-blue-500 to-purple-500
@@ -78,10 +78,10 @@ export default function TopNavBar() {
                         shadow-lg
                         hover:opacity-90
                         transition-opacity
-                        ring-2 ring-white/20
+                        ring-2 ring-white
                     "
                 >
-                    <span className="text-sm">{lesUser?.full_name.charAt(0) || 'U'}</span>
+                    <span className="text-xs md:text-sm">{lesUser?.full_name.charAt(0) || 'U'}</span>
                 </button>
                 </Link>
             </div>
