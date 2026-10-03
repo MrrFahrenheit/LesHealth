@@ -1,9 +1,10 @@
 "use client";
 
+import React, { useState } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Loader } from '@/components/ui/Loader';
-import { getUserProfile } from '@/modules/les/api/users.api';
-import { useQuery } from '@tanstack/react-query';
+import { getUserProfile, updateUserProfile } from '@/modules/les/api/users.api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     Activity,
     ArrowRight,
@@ -81,16 +82,53 @@ import { useUser } from '@/providers/userProvider';
 export default function Page() {
     const params = useParams();
     const currentUser = useUser();
+    const queryClient = useQueryClient();
     
     const urlId = Array.isArray(params.id) ? params.id[0] : params.id;
     const targetId = urlId || currentUser?.id;
     const isOwnProfile = targetId === currentUser?.id;
+
+    // Estados para edición
+    const [isEditing, setIsEditing] = useState(false);
+    const [editFullName, setEditFullName] = useState("");
+    const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
     const { data: user, isLoading } = useQuery({
         queryKey: ['userProfile', targetId],
         queryFn: () => getUserProfile(targetId as string),
         enabled: !!targetId,
     });
+
+    const updateMutation = useMutation({
+        mutationFn: updateUserProfile,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['userProfile', targetId] });
+            setIsEditing(false);
+        },
+    });
+
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setIsUploadingPhoto(true);
+            const { uploadImageToR2 } = await import("@/lib/upload-image");
+            const uploadedUrl = await uploadImageToR2(file, 'avatars');
+            
+            await updateMutation.mutateAsync({ avatar_url: uploadedUrl });
+        } catch (error) {
+            console.error("Error al subir foto:", error);
+            alert("Error al actualizar la foto de perfil.");
+        } finally {
+            setIsUploadingPhoto(false);
+        }
+    };
+
+    const handleSaveProfile = () => {
+        if (!editFullName.trim()) return;
+        updateMutation.mutate({ full_name: editFullName });
+    };
 
     if (isLoading) {
         return <Loader text="Cargando perfil..." />;
@@ -122,6 +160,10 @@ export default function Page() {
                     {isOwnProfile && (
                         <button
                             type="button"
+                            onClick={() => {
+                                setEditFullName(user.full_name);
+                                setIsEditing(true);
+                            }}
                             className="flex w-fit items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-[#69409A] hover:text-[#69409A]"
                         >
                             <Edit3 size={16} />
@@ -145,18 +187,25 @@ export default function Page() {
                                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
                                         <div className="relative">
                                             <img
-                                                src={user.les_doctor_profile?.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=random`}
+                                                src={user.avatar_url || user.les_doctor_profile?.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=random`}
                                                 alt="Perfil"
-                                                className="h-24 w-24 rounded-2xl border-4 border-white object-cover shadow-md"
+                                                className={`h-24 w-24 rounded-2xl border-4 border-white object-cover shadow-md ${isUploadingPhoto ? 'opacity-50' : ''}`}
                                             />
 
                                             {isOwnProfile && (
-                                                <button
-                                                    className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#69409A] text-white shadow-sm"
-                                                    aria-label="Editar foto"
+                                                <label
+                                                    className="absolute bottom-1 right-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#69409A] text-white shadow-sm transition hover:bg-[#583383]"
+                                                    title="Editar foto"
                                                 >
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={handlePhotoUpload}
+                                                        disabled={isUploadingPhoto}
+                                                    />
                                                     <Edit3 size={14} />
-                                                </button>
+                                                </label>
                                             )}
                                         </div>
 
@@ -427,6 +476,7 @@ export default function Page() {
                     {isOwnProfile && (
                         <aside className="space-y-5">
                             {/* Profile completion */}
+                            {/* ... rest of sidebar ... */}
                         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-sm font-bold text-[#69409A]">
@@ -588,6 +638,51 @@ export default function Page() {
                     )}
                 </div>
             </div>
+
+            {/* Modal de Edición */}
+            {isEditing && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl">
+                        <div className="border-b border-gray-100 px-6 py-4">
+                            <h2 className="text-lg font-bold text-gray-900">Editar Perfil</h2>
+                            <p className="mt-1 text-xs text-gray-500">Actualiza tu información personal básica.</p>
+                        </div>
+
+                        <div className="p-6">
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="mb-1 block text-xs font-semibold text-gray-700">Nombre completo</label>
+                                    <input
+                                        type="text"
+                                        value={editFullName}
+                                        onChange={(e) => setEditFullName(e.target.value)}
+                                        className="w-full rounded-xl border border-gray-200 bg-[#F8F9FC] px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#69409A] focus:bg-white"
+                                        placeholder="Ej. Juan Pérez"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
+                            <button
+                                type="button"
+                                onClick={() => setIsEditing(false)}
+                                className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSaveProfile}
+                                disabled={updateMutation.isPending || !editFullName.trim()}
+                                className="flex items-center gap-2 rounded-xl bg-[#69409A] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#583383] disabled:opacity-50"
+                            >
+                                {updateMutation.isPending ? "Guardando..." : "Guardar cambios"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

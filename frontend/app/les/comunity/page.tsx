@@ -29,6 +29,8 @@ const trendingTopics: [string, number][] = [
 export default function Page() {
     const queryClient = useQueryClient();
     const [composerText, setComposerText] = useState("");
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const { data: postsData, isLoading: loadingPosts } = useQuery({
         queryKey: ["community_posts"],
@@ -41,9 +43,10 @@ export default function Page() {
     });
 
     const createPostMutation = useMutation({
-        mutationFn: (text: string) => createPost({ content: text, tags: ["General"] }),
+        mutationFn: (data: { content: string, image_url?: string }) => createPost({ ...data, tags: ["General"] }),
         onSuccess: () => {
             setComposerText("");
+            setSelectedImage(null);
             queryClient.invalidateQueries({ queryKey: ["community_posts"] });
         },
     });
@@ -54,6 +57,28 @@ export default function Page() {
             queryClient.invalidateQueries({ queryKey: ["community_posts"] });
         },
     });
+
+    const handleCreatePost = async () => {
+        if (!composerText.trim() && !selectedImage) return;
+        
+        try {
+            setIsUploading(true);
+            let uploadedUrl = undefined;
+            
+            if (selectedImage) {
+                // Dynamically import to avoid breaking SSR if it relies on browser globals
+                const { uploadImageToR2 } = await import("@/lib/upload-image");
+                uploadedUrl = await uploadImageToR2(selectedImage, 'community-posts');
+            }
+            
+            await createPostMutation.mutateAsync({ content: composerText, image_url: uploadedUrl });
+        } catch (error) {
+            console.error("Error al publicar:", error);
+            alert("Hubo un error al publicar. Inténtalo de nuevo.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     function PostCard({ post }: { post: any }) {
         const timeAgo = new Date(post.created_at).toLocaleDateString();
@@ -138,9 +163,11 @@ export default function Page() {
                         <button
                             type="button"
                             onClick={() => toggleLikeMutation.mutate(post.id)}
-                            className="flex items-center gap-1.5 text-xs font-medium text-gray-500 transition hover:text-red-500"
+                            className={`flex items-center gap-1.5 text-xs font-medium transition ${
+                                post.isLiked ? "text-red-500" : "text-gray-500 hover:text-red-500"
+                            }`}
                         >
-                            <Heart size={17} />
+                            <Heart size={17} className={post.isLiked ? "fill-current" : ""} />
                             {post._count?.les_post_like || 0}
                         </button>
     
@@ -222,16 +249,23 @@ export default function Page() {
 
                             <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
                                 <div className="flex gap-2">
-                                    <button
-                                        type="button"
-                                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-gray-500 hover:bg-gray-50"
-                                    >
+                                    <label className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-gray-500 hover:bg-gray-50 cursor-pointer">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                if (e.target.files && e.target.files[0]) {
+                                                    setSelectedImage(e.target.files[0]);
+                                                }
+                                            }}
+                                        />
                                         <ImageIcon
                                             size={16}
-                                            className="text-[#69409A]"
+                                            className={selectedImage ? "text-green-500" : "text-[#69409A]"}
                                         />
-                                        Imagen
-                                    </button>
+                                        {selectedImage ? "Imagen Lista" : "Imagen"}
+                                    </label>
 
                                     <button
                                         type="button"
@@ -247,11 +281,11 @@ export default function Page() {
 
                                 <button
                                     type="button"
-                                    disabled={!composerText.trim() || createPostMutation.isPending}
-                                    onClick={() => createPostMutation.mutate(composerText)}
+                                    disabled={(!composerText.trim() && !selectedImage) || isUploading}
+                                    onClick={handleCreatePost}
                                     className="rounded-lg bg-[#69409A] px-4 py-2 text-xs font-semibold text-white hover:bg-[#583383] disabled:opacity-50"
                                 >
-                                    {createPostMutation.isPending ? "Publicando..." : "Publicar"}
+                                    {isUploading ? "Publicando..." : "Publicar"}
                                 </button>
                             </div>
                         </div>

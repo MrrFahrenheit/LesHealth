@@ -72,7 +72,21 @@ export class UserService {
     }
   }
 
-  // 6. Eliminar usuario (Y por CASCADE en la DB se lleva rutinas, citas, etc.)
+  // 6. Actualizar usuario (Perfil general)
+  async updateUser(id: string, data: Prisma.les_userUpdateInput) {
+    try {
+      const updatedUser = await this.prismaService.les_user.update({
+        where: { id },
+        data,
+      });
+      const { password_hash, ...userWithoutPassword } = updatedUser;
+      return userWithoutPassword;
+    } catch (error) {
+      throw new NotFoundException(`No se pudo actualizar: Usuario con ID ${id} no existe`);
+    }
+  }
+
+  // 7. Eliminar usuario (Y por CASCADE en la DB se lleva rutinas, citas, etc.)
   async deleteUser(id: string) {
     try {
       return await this.prismaService.les_user.delete({

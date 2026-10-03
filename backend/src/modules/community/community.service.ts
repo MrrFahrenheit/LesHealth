@@ -23,8 +23,8 @@ export class CommunityService {
     });
   }
 
-  async getPosts() {
-    return this.prisma.les_post.findMany({
+  async getPosts(userId: string) {
+    const posts = await this.prisma.les_post.findMany({
       orderBy: { created_at: 'desc' },
       include: {
         les_user: {
@@ -33,8 +33,18 @@ export class CommunityService {
         _count: {
           select: { les_post_like: true, les_post_comment: true },
         },
+        les_post_like: {
+          where: { user_id: userId },
+          select: { id: true },
+        },
       },
     });
+
+    return posts.map(post => ({
+      ...post,
+      isLiked: post.les_post_like.length > 0,
+      les_post_like: undefined, // No expongas los detalles de likes a nivel de cliente si no es necesario
+    }));
   }
 
   // ----------------- GROUPS -----------------

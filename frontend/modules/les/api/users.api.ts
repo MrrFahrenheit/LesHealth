@@ -4,6 +4,7 @@ export type UserProfile = {
   id: string;
   email: string;
   full_name: string;
+  avatar_url?: string;
   role: string;
   les_doctor_profile?: {
     specialty: string;
@@ -23,4 +24,7 @@ export const getUserProfile = async (id: string): Promise<UserProfile> => {
   const { data } = await apiClient.get(`/user/${encodeURIComponent(id)}`);
   return data;
 };
-
+export const updateUserProfile = async (data: { full_name?: string, avatar_url?: string }): Promise<UserProfile> => {
+  const { data: resData } = await apiClient.patch(`/user`, data);
+  return resData;
+};

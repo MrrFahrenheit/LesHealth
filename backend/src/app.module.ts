@@ -12,9 +12,10 @@ import { RoutineEventModule } from './modules/routine-event/routine-event.module
 import { PrescriptionModule } from './modules/prescription/prescription.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
 import { CommunityModule } from './modules/community/community.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
-  imports: [UserModule, SesionModule, AuthModule, PrismaModule, UvModule, SignModule, RoutineModule, RoutineEventModule, PrescriptionModule, ReservationModule, CommunityModule],
+  imports: [UserModule, SesionModule, AuthModule, PrismaModule, UvModule, SignModule, RoutineModule, RoutineEventModule, PrescriptionModule, ReservationModule, CommunityModule, UploadModule],
   controllers: [AppController],
   providers: [AppService],
 })
