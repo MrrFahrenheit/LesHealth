@@ -10,7 +10,15 @@ export class SesionGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
     
-    const token = request.cookies['sesion_token'];
+    // 1. Obtener el token de la cookie O del header de Autorización (Para Safari iOS / Móviles)
+    let token = request.cookies['sesion_token'];
+
+    if (!token && request.headers.authorization) {
+      const authHeader = request.headers.authorization;
+      if (authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
 
     if (!token) {
       response.clearCookie('sesion_token', { httpOnly: true, sameSite: 'lax', path: '/' });
@@ -37,10 +45,9 @@ export class SesionGuard implements CanActivate {
       throw new UnauthorizedException('Sesión inválida o expirada');
     }
 
-    // 4. 🚀 ADJUNTAR EL USUARIO AL REQUEST
-    // Ahora cualquier controlador o decorador posterior tendrá acceso a req.user
+    // 4. ADJUNTAR EL USUARIO AL REQUEST
     request.user = session.les_user;
-    request.sesionId = session.id; // Adjuntar el ID de la sesión al request
+    request.sesionId = session.id;
 
     return true;
   }
