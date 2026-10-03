@@ -10,6 +10,9 @@ export const LoginUser = async (loginFormData: LoginFormData) => {
             const token = result.data?.sesionCreated?.refresh_token;
             if (token) {
                 await setAuthCookie(token);
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('token', token);
+                }
             }
             return true;
         }
