@@ -15,10 +15,9 @@ export default function TopNavBar() {
                 w-full md:w-[85%]
                 min-h-[64px]
                 flex items-center justify-end md:justify-between
-                z-10
                 pl-16 md:pl-8 pr-4 md:pr-8 py-2
                 backdrop-blur-md bg-white/70
-                border-b border-gray-200/50
+                border-b border-gray-200/50 z-10
             "
         >
             {/* Búsqueda */}

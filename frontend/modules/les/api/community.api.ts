@@ -1,0 +1,21 @@
+import { apiClient } from "@/lib/api-client";
+
+export const getPosts = async () => {
+    const response = await apiClient.get('/community/posts');
+    return response.data;
+};
+
+export const createPost = async (data: { content: string; image_url?: string; category?: string; tags?: string[] }) => {
+    const response = await apiClient.post('/community/posts', data);
+    return response.data;
+};
+
+export const toggleLikePost = async (postId: string) => {
+    const response = await apiClient.post(`/community/posts/${postId}/like`);
+    return response.data;
+};
+
+export const getGroups = async () => {
+    const response = await apiClient.get('/community/groups');
+    return response.data;
+};

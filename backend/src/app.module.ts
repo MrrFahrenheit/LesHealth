@@ -11,9 +11,10 @@ import { RoutineModule } from './modules/routine/routine.module';
 import { RoutineEventModule } from './modules/routine-event/routine-event.module';
 import { PrescriptionModule } from './modules/prescription/prescription.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { CommunityModule } from './modules/community/community.module';
 
 @Module({
-  imports: [UserModule, SesionModule, AuthModule, PrismaModule, UvModule, SignModule, RoutineModule, RoutineEventModule, PrescriptionModule, ReservationModule],
+  imports: [UserModule, SesionModule, AuthModule, PrismaModule, UvModule, SignModule, RoutineModule, RoutineEventModule, PrescriptionModule, ReservationModule, CommunityModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -73,7 +73,7 @@ export default function LeftNavBar() {
                     text-white
                     flex flex-col
                     overflow-visible
-                    z-50 md:z-10
+                    z-50 md:z-20
                     px-8 lg:px-4 
                     /* Transición de entrada/salida */
                     transition-transform duration-300 ease-in-out

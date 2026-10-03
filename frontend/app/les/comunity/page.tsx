@@ -1,4 +1,8 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getPosts, getGroups, createPost, toggleLikePost } from "@/modules/les/api/community.api";
 import {
     ArrowRight,
     Bell,
@@ -15,190 +19,151 @@ import {
     Users,
 } from "lucide-react";
 
-type Post = {
-    id: number;
-    author: string;
-    role: string;
-    time: string;
-    avatar: string;
-    content: string;
-    likes: number;
-    comments: number;
-    topic: string;
-    image?: string;
-    verified?: boolean;
-};
-
-const posts: Post[] = [
-    {
-        id: 1,
-        author: "Laura Martínez",
-        role: "Paciente · Lupus",
-        time: "Hace 25 min",
-        avatar: "https://i.pravatar.cc/150?img=45",
-        content:
-            "¿Alguien más siente que el cansancio empeora cuando cambia el clima? Últimamente he estado teniendo mucha fatiga y me gustaría saber cómo lo manejan.",
-        likes: 28,
-        comments: 12,
-        topic: "Lupus",
-    },
-    {
-        id: 2,
-        author: "Carlos Rodríguez",
-        role: "Paciente · Bienestar",
-        time: "Hace 1 h",
-        avatar: "https://i.pravatar.cc/150?img=12",
-        content:
-            "Hoy conseguí mantener mi rutina de caminata durante toda la semana. Puede parecer algo pequeño, pero para mí es un progreso enorme. 💜",
-        likes: 41,
-        comments: 8,
-        topic: "Progreso personal",
-        image:
-            "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=900&q=80",
-    },
-    {
-        id: 3,
-        author: "Dra. Andrea López",
-        role: "Reumatóloga",
-        time: "Hace 2 h",
-        avatar: "https://i.pravatar.cc/150?img=32",
-        content:
-            "Recordatorio para nuestra comunidad: llevar un registro de síntomas puede ayudar mucho durante una consulta. Anotar intensidad, duración y posibles desencadenantes puede aportar información muy útil.",
-        likes: 63,
-        comments: 14,
-        topic: "Consejos médicos",
-        verified: true,
-    },
-];
-
-const groups = [
-    {
-        name: "Viviendo con Lupus",
-        members: "2.4k",
-        image:
-            "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80",
-    },
-    {
-        name: "Nutrición y bienestar",
-        members: "1.8k",
-        image:
-            "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=500&q=80",
-    },
-    {
-        name: "Salud mental",
-        members: "1.2k",
-        image:
-            "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=500&q=80",
-    },
-];
-
-const trendingTopics = [
+const trendingTopics: [string, number][] = [
     ["Fatiga y cansancio", 38],
     ["Alimentación antiinflamatoria", 31],
     ["Ejercicio suave", 24],
     ["Salud mental", 19],
 ];
 
-function PostCard({ post }: { post: Post }) {
-    return (
-        <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                    <img
-                        src={post.avatar}
-                        alt={post.author}
-                        className="h-11 w-11 shrink-0 rounded-full object-cover ring-4 ring-purple-50"
-                    />
+export default function Page() {
+    const queryClient = useQueryClient();
+    const [composerText, setComposerText] = useState("");
 
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                            <h3 className="truncate text-sm font-bold text-gray-900">
-                                {post.author}
-                            </h3>
+    const { data: postsData, isLoading: loadingPosts } = useQuery({
+        queryKey: ["community_posts"],
+        queryFn: getPosts,
+    });
 
-                            {post.verified && (
-                                <ShieldCheck
-                                    size={15}
-                                    className="shrink-0 text-[#69409A]"
-                                />
-                            )}
-                        </div>
+    const { data: groupsData, isLoading: loadingGroups } = useQuery({
+        queryKey: ["community_groups"],
+        queryFn: getGroups,
+    });
 
-                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
-                            <span>{post.role}</span>
-                            <span>·</span>
-                            <span>{post.time}</span>
+    const createPostMutation = useMutation({
+        mutationFn: (text: string) => createPost({ content: text, tags: ["General"] }),
+        onSuccess: () => {
+            setComposerText("");
+            queryClient.invalidateQueries({ queryKey: ["community_posts"] });
+        },
+    });
+
+    const toggleLikeMutation = useMutation({
+        mutationFn: (postId: string) => toggleLikePost(postId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["community_posts"] });
+        },
+    });
+
+    function PostCard({ post }: { post: any }) {
+        const timeAgo = new Date(post.created_at).toLocaleDateString();
+        const authorName = post.les_user?.full_name || "Usuario Desconocido";
+        const authorRole = post.les_user?.role === "doctor" ? "Doctor" : "Paciente";
+        const isVerified = post.les_user?.role === "doctor";
+        const avatar = post.les_user?.avatar_url || `https://ui-avatars.com/api/?name=${authorName}&background=random`;
+        
+        return (
+            <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <img
+                            src={avatar}
+                            alt={authorName}
+                            className="h-11 w-11 shrink-0 rounded-full object-cover ring-4 ring-purple-50"
+                        />
+    
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                                <h3 className="truncate text-sm font-bold text-gray-900">
+                                    {authorName}
+                                </h3>
+    
+                                {isVerified && (
+                                    <ShieldCheck
+                                        size={15}
+                                        className="shrink-0 text-[#69409A]"
+                                    />
+                                )}
+                            </div>
+    
+                            <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+                                <span className="capitalize">{authorRole}</span>
+                                <span>·</span>
+                                <span>{timeAgo}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <button
-                    type="button"
-                    className="rounded-lg p-2 text-gray-400 hover:bg-gray-50"
-                >
-                    <MoreHorizontal size={18} />
-                </button>
-            </div>
-
-            <p className="mt-4 text-sm leading-6 text-gray-600">
-                {post.content}
-            </p>
-
-            {post.image && (
-                <div className="mt-4 overflow-hidden rounded-xl">
-                    <img
-                        src={post.image}
-                        alt="Contenido de la publicación"
-                        className="max-h-[360px] w-full object-cover"
-                    />
-                </div>
-            )}
-
-            <div className="mt-4 flex items-center justify-between">
-                <span className="rounded-full bg-[#F4EEFA] px-3 py-1 text-[10px] font-semibold text-[#69409A]">
-                    #{post.topic}
-                </span>
-
-                <button
-                    type="button"
-                    className="text-gray-400 hover:text-[#69409A]"
-                >
-                    <Bookmark size={17} />
-                </button>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-                <div className="flex items-center gap-5">
+    
                     <button
                         type="button"
-                        className="flex items-center gap-1.5 text-xs font-medium text-gray-500 transition hover:text-red-500"
+                        className="rounded-lg p-2 text-gray-400 hover:bg-gray-50"
                     >
-                        <Heart size={17} />
-                        {post.likes}
-                    </button>
-
-                    <button
-                        type="button"
-                        className="flex items-center gap-1.5 text-xs font-medium text-gray-500 transition hover:text-[#69409A]"
-                    >
-                        <MessageCircle size={17} />
-                        {post.comments}
+                        <MoreHorizontal size={18} />
                     </button>
                 </div>
-
-                <button
-                    type="button"
-                    className="flex items-center gap-1.5 text-xs font-semibold text-[#69409A]"
-                >
-                    Comentar
-                    <ArrowRight size={13} />
-                </button>
-            </div>
-        </article>
-    );
-}
-
-export default function Page() {
+    
+                <p className="mt-4 text-sm leading-6 text-gray-600">
+                    {post.content}
+                </p>
+    
+                {post.image_url && (
+                    <div className="mt-4 overflow-hidden rounded-xl">
+                        <img
+                            src={post.image_url}
+                            alt="Contenido de la publicación"
+                            className="max-h-[360px] w-full object-cover"
+                        />
+                    </div>
+                )}
+    
+                <div className="mt-4 flex items-center justify-between">
+                    <div className="flex gap-2">
+                        {post.tags?.map((t: string) => (
+                            <span key={t} className="rounded-full bg-[#F4EEFA] px-3 py-1 text-[10px] font-semibold text-[#69409A]">
+                                #{t}
+                            </span>
+                        ))}
+                    </div>
+    
+                    <button
+                        type="button"
+                        className="text-gray-400 hover:text-[#69409A]"
+                    >
+                        <Bookmark size={17} />
+                    </button>
+                </div>
+    
+                <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
+                    <div className="flex items-center gap-5">
+                        <button
+                            type="button"
+                            onClick={() => toggleLikeMutation.mutate(post.id)}
+                            className="flex items-center gap-1.5 text-xs font-medium text-gray-500 transition hover:text-red-500"
+                        >
+                            <Heart size={17} />
+                            {post._count?.les_post_like || 0}
+                        </button>
+    
+                        <button
+                            type="button"
+                            className="flex items-center gap-1.5 text-xs font-medium text-gray-500 transition hover:text-[#69409A]"
+                        >
+                            <MessageCircle size={17} />
+                            {post._count?.les_post_comment || 0}
+                        </button>
+                    </div>
+    
+                    <button
+                        type="button"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-[#69409A]"
+                    >
+                        Comentar
+                        <ArrowRight size={13} />
+                    </button>
+                </div>
+            </article>
+        );
+    }
     return (
         <main className="flex-1 overflow-y-auto bg-[#F8F9FC] p-4 lg:p-8">
             <div className="mx-auto max-w-[1600px]">
@@ -246,12 +211,13 @@ export default function Page() {
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-[#EDE1F5]" />
 
-                                <button
-                                    type="button"
-                                    className="flex h-10 flex-1 items-center rounded-full bg-[#F7F7FA] px-4 text-left text-xs text-gray-400 transition hover:bg-[#F1EDF5]"
-                                >
-                                    Comparte algo con la comunidad...
-                                </button>
+                                <input
+                                    type="text"
+                                    value={composerText}
+                                    onChange={(e) => setComposerText(e.target.value)}
+                                    placeholder="Comparte algo con la comunidad..."
+                                    className="flex h-10 flex-1 items-center rounded-full bg-[#F7F7FA] px-4 text-left text-xs text-gray-700 outline-none transition focus:bg-[#F1EDF5]"
+                                />
                             </div>
 
                             <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
@@ -281,9 +247,11 @@ export default function Page() {
 
                                 <button
                                     type="button"
-                                    className="rounded-lg bg-[#69409A] px-4 py-2 text-xs font-semibold text-white hover:bg-[#583383]"
+                                    disabled={!composerText.trim() || createPostMutation.isPending}
+                                    onClick={() => createPostMutation.mutate(composerText)}
+                                    className="rounded-lg bg-[#69409A] px-4 py-2 text-xs font-semibold text-white hover:bg-[#583383] disabled:opacity-50"
                                 >
-                                    Publicar
+                                    {createPostMutation.isPending ? "Publicando..." : "Publicar"}
                                 </button>
                             </div>
                         </div>
@@ -316,9 +284,15 @@ export default function Page() {
 
                         {/* Posts */}
                         <div className="mt-5 space-y-4">
-                            {posts.map((post) => (
-                                <PostCard key={post.id} post={post} />
-                            ))}
+                            {loadingPosts ? (
+                                <p className="text-sm text-gray-500">Cargando publicaciones...</p>
+                            ) : postsData?.length > 0 ? (
+                                postsData.map((post: any) => (
+                                    <PostCard key={post.id} post={post} />
+                                ))
+                            ) : (
+                                <p className="text-sm text-gray-500">No hay publicaciones aún.</p>
+                            )}
                         </div>
 
                         {/* Community CTA */}
@@ -372,35 +346,47 @@ export default function Page() {
                             </div>
 
                             <div className="mt-4 space-y-4">
-                                {groups.map((group) => (
-                                    <div
-                                        key={group.name}
-                                        className="flex items-center gap-3"
-                                    >
-                                        <img
-                                            src={group.image}
-                                            alt={group.name}
-                                            className="h-11 w-11 rounded-xl object-cover"
-                                        />
-
-                                        <div className="min-w-0 flex-1">
-                                            <h3 className="truncate text-xs font-semibold text-gray-900">
-                                                {group.name}
-                                            </h3>
-
-                                            <p className="mt-1 text-[10px] text-gray-400">
-                                                {group.members} miembros
-                                            </p>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            className="rounded-lg border border-[#69409A] px-2.5 py-1.5 text-[10px] font-semibold text-[#69409A] hover:bg-[#F4EEFA]"
+                                {loadingGroups ? (
+                                    <p className="text-xs text-gray-400">Cargando grupos...</p>
+                                ) : groupsData?.length > 0 ? (
+                                    groupsData.map((group: any) => (
+                                        <div
+                                            key={group.id}
+                                            className="flex items-center gap-3"
                                         >
-                                            Unirme
-                                        </button>
-                                    </div>
-                                ))}
+                                            {group.image_url ? (
+                                                <img
+                                                    src={group.image_url}
+                                                    alt={group.name}
+                                                    className="h-11 w-11 rounded-xl object-cover"
+                                                />
+                                            ) : (
+                                                <div className="h-11 w-11 rounded-xl bg-purple-100 flex items-center justify-center text-[#69409A] font-bold">
+                                                    {group.name.charAt(0)}
+                                                </div>
+                                            )}
+
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="truncate text-xs font-semibold text-gray-900">
+                                                    {group.name}
+                                                </h3>
+
+                                                <p className="mt-1 text-[10px] text-gray-400">
+                                                    {group._count?.les_community_group_member || 0} miembros
+                                                </p>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                className="rounded-lg border border-[#69409A] px-2.5 py-1.5 text-[10px] font-semibold text-[#69409A] hover:bg-[#F4EEFA]"
+                                            >
+                                                Unirme
+                                            </button>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-xs text-gray-400">No hay grupos disponibles.</p>
+                                )}
                             </div>
                         </div>
 
