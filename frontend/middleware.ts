@@ -46,4 +46,3 @@ export const config = {
     '/get-started/(.*)',
   ],
 };
-};
