@@ -12,7 +12,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
     
     if (!user) {
         // Si el middleware dejó pasar al usuario pero el backend rechazó el token (ej. expirado o error), lo sacamos
-        redirect("/get-started/auth");
+        redirect("/logout");
     }
 
     // Si el usuario no ha verificado su correo, lo enviamos a la página de verificación (UI bloqueadora)
