@@ -6,7 +6,13 @@ export function middleware(request: NextRequest) {
 
   const token = request.cookies.get('sesion_token')?.value;
   
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+  
+  if (searchParams.get('clear') === '1') {
+    const response = NextResponse.next();
+    response.cookies.delete('sesion_token');
+    return response;
+  }
 
   const isPublicRoute = pathname === '/' || pathname.startsWith('/get-started');
   const isPrivateRoute = pathname.startsWith('/les');
@@ -39,4 +45,5 @@ export const config = {
     '/get-started',
     '/get-started/(.*)',
   ],
+};
 };
