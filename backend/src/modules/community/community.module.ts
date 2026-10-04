@@ -3,7 +3,10 @@ import { CommunityController } from './community.controller';
 import { CommunityService } from './community.service';
 import { PrismaService } from 'src/core/database/prisma.service';
 
+import { NotificationModule } from '../notification/notification.module';
+
 @Module({
+  imports: [NotificationModule],
   controllers: [CommunityController],
   providers: [CommunityService, PrismaService],
 })
