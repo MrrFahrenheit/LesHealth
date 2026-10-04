@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class CommunityService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private notificationService: NotificationService) {}
 
   // ----------------- POSTS -----------------
   async createPost(userId: string, data: any) {
@@ -76,6 +77,27 @@ export class CommunityService {
     await this.prisma.les_post_like.create({
       data: { post_id: postId, user_id: userId },
     });
+
+    // Enviar notificación al autor del post
+    const post = await this.prisma.les_post.findUnique({
+      where: { id: postId },
+      select: { author_id: true }
+    });
+    const user = await this.prisma.les_user.findUnique({
+      where: { id: userId },
+      select: { full_name: true }
+    });
+
+    if (post && user && post.author_id !== userId) {
+      await this.notificationService.createNotification(
+        post.author_id,
+        'Nuevo Like',
+        `${user.full_name} le dio like a tu publicación.`,
+        'LIKE',
+        `/les/community`
+      );
+    }
+
     return { liked: true };
   }
 }
