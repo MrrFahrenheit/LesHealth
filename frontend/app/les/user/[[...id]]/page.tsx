@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Loader } from '@/components/ui/Loader';
 import { getUserProfile, updateUserProfile } from '@/modules/les/api/users.api';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Activity,
     ArrowRight,
@@ -24,6 +23,7 @@ import {
     UserRound,
 } from "lucide-react";
 import { useParams } from 'next/navigation';
+import React, { useState } from 'react';
 
 // ... existing constants ...
 
@@ -86,7 +86,7 @@ export default function Page() {
     
     const urlId = Array.isArray(params.id) ? params.id[0] : params.id;
     const targetId = urlId || currentUser?.id;
-    const isOwnProfile = targetId === currentUser?.id;
+    const isOwnProfile = !urlId;
 
     // Estados para edición
     const [isEditing, setIsEditing] = useState(false);
@@ -157,19 +157,6 @@ export default function Page() {
                         </p>
                     </div>
 
-                    {isOwnProfile && (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setEditFullName(user.full_name);
-                                setIsEditing(true);
-                            }}
-                            className="flex w-fit items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-[#69409A] hover:text-[#69409A]"
-                        >
-                            <Edit3 size={16} />
-                            Editar perfil
-                        </button>
-                    )}
                 </div>
 
                 <div className="mt-7 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -643,10 +630,13 @@ export default function Page() {
             {isEditing && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
                     <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl">
-                        <div className="border-b border-gray-100 px-6 py-4">
+                        <button className="border-b border-gray-100 px-6 py-4" onClick={() => {
+                                setEditFullName(user.full_name);
+                                setIsEditing(true);
+                            }}>
                             <h2 className="text-lg font-bold text-gray-900">Editar Perfil</h2>
                             <p className="mt-1 text-xs text-gray-500">Actualiza tu información personal básica.</p>
-                        </div>
+                        </button>
 
                         <div className="p-6">
                             <div className="space-y-4">

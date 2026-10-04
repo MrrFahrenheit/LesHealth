@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getPosts, getGroups, createPost, toggleLikePost } from "@/modules/les/api/community.api";
+import { createPost, getGroups, getPosts, toggleLikePost } from "@/modules/les/api/community.api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowRight,
     Bell,
@@ -14,10 +13,10 @@ import {
     MoreHorizontal,
     Plus,
     Search,
-    Send,
     ShieldCheck,
-    Users,
+    Users
 } from "lucide-react";
+import { useState } from "react";
 
 const trendingTopics: [string, number][] = [
     ["Fatiga y cansancio", 38],

@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { UploadService } from './upload.service';
 import { SesionGuard } from 'src/common/guards/sesion.guard';
+import { UploadService } from './upload.service';
 
 @Controller('upload')
 @UseGuards(SesionGuard)
