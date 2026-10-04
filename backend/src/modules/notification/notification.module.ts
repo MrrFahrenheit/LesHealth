@@ -10,3 +10,4 @@ import { DatabaseModule } from 'src/core/database/database.module';
   exports: [NotificationService], // Exportamos para que otros módulos (Community, Routine) puedan lanzar notificaciones
 })
 export class NotificationModule {}
+

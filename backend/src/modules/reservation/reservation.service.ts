@@ -2,15 +2,19 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ReservationService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly notificationService: NotificationService
+  ) {}
 
   async create(createReservationDto: CreateReservationDto, patient_id: string) {
     try {
       const { doctor_id, reservation_date, notes } = createReservationDto;
-      return await this.prismaService.les_user_reservation.create({
+      const reservation = await this.prismaService.les_user_reservation.create({
         data: {
           reservation_date,
           notes,
@@ -22,6 +26,24 @@ export class ReservationService {
           }
         },
       });
+
+      // Obtener nombre del paciente para la notificación
+      const patient = await this.prismaService.les_user.findUnique({
+        where: { id: patient_id },
+        select: { full_name: true }
+      });
+
+      if (patient) {
+        await this.notificationService.createNotification(
+          doctor_id,
+          'Nueva Cita Médica',
+          `${patient.full_name} ha agendado una cita para el ${new Date(reservation_date).toLocaleDateString()}.`,
+          'RESERVATION',
+          '/les/reservations'
+        );
+      }
+
+      return reservation;
     } catch (error) {
       throw new InternalServerErrorException('Error al crear la cita/reserva');
     }

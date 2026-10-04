@@ -1,9 +1,10 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
-import UVIndex from "./UVIndex";
 import { useUser } from "@/providers/userProvider";
+import { Search } from "lucide-react";
 import Link from "next/link";
+import NotificationBell from "./NotificationBell";
+import UVIndex from "./UVIndex";
 
 export default function TopNavBar() {
     const lesUser = useUser();
@@ -49,19 +50,7 @@ export default function TopNavBar() {
                 <UVIndex />
 
                 {/* Notificaciones */}
-                <button className="relative text-gray-500 hover:text-[#5C328E] transition-colors p-2 rounded-full hover:bg-purple-50">
-                    <Bell className="h-5 w-5 md:h-6 md:w-6" />
-
-                    <span
-                        className="
-                            absolute top-1 right-1 md:top-0 md:right-0
-                            w-2.5 h-2.5
-                            bg-[#69409A]
-                            rounded-full
-                            border-2 border-white
-                        "
-                    />
-                </button>
+                <NotificationBell />
 
                 {/* Perfil */}
                 <Link href={`/les/user`} className="flex items-center gap-2">
