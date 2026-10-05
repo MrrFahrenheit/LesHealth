@@ -1,24 +1,31 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Resend } from 'resend';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
-  private resend: Resend;
+  private transporter: nodemailer.Transporter;
   private logger = new Logger(MailService.name);
-  private isResendConfigured = false;
 
   constructor() {
     this.init();
   }
 
   private init() {
-    const apiKey = process.env.RESEND_API_KEY;
-    if (apiKey) {
-      this.resend = new Resend(apiKey);
-      this.isResendConfigured = true;
-      this.logger.log('MailService inicializado con Resend (RESEND_API_KEY encontrada)');
+    // Usaremos Gmail que permite enviar a cualquier persona gratis (con un App Password)
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+
+    if (user && pass) {
+      this.transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: user,
+          pass: pass,
+        },
+      });
+      this.logger.log('MailService inicializado con Gmail SMTP');
     } else {
-      this.logger.warn('RESEND_API_KEY no encontrada en las variables de entorno. Los correos se simularán en consola.');
+      this.logger.warn('SMTP_USER o SMTP_PASS no encontrados. Los correos se simularán en consola.');
     }
   }
 
@@ -35,31 +42,25 @@ export class MailService {
       </div>
     `;
 
-    if (!this.isResendConfigured) {
+    if (!this.transporter) {
       this.logger.log(`\n================ SIMULACIÓN DE CORREO ================`);
       this.logger.log(`Para: ${to}`);
       this.logger.log(`Asunto: ${subject}`);
       this.logger.log(`Código secreto: ${code}`);
-      this.logger.log(`Nota: Añade RESEND_API_KEY al archivo .env para enviar correos reales.`);
+      this.logger.log(`Nota: Añade SMTP_USER (tu correo Gmail) y SMTP_PASS (tu contraseña de aplicación) al .env para enviar correos reales`);
       this.logger.log(`======================================================\n`);
       return;
     }
 
     try {
-      const { data, error } = await this.resend.emails.send({
-        // IMPORTANTE: resend.dev solo permite enviar correos a la dirección registrada en la cuenta de Resend (la tuya).
-        // Para enviar a cualquier persona, debes verificar un dominio en tu cuenta de Resend.
-        from: 'LES Health <leshealthaccounts.com>', 
-        to: [to],
+      const info = await this.transporter.sendMail({
+        from: `"LES Health" <${process.env.SMTP_USER}>`,
+        to: to,
         subject: subject,
         html: htmlContent,
       });
 
-      if (error) {
-        this.logger.error(`Error enviando correo vía Resend: ${JSON.stringify(error)}`);
-      } else {
-        this.logger.log(`Mensaje enviado exitosamente. ID: ${data?.id}`);
-      }
+      this.logger.log(`Mensaje enviado exitosamente. ID: ${info.messageId}`);
     } catch (err) {
       this.logger.error('Excepción al enviar correo', err);
     }
