@@ -43,23 +43,38 @@ export function PrescriptionCard({ prescription }: { prescription: Prescription 
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 rounded-xl bg-[#F8F5FC] p-4 sm:grid-cols-3">
+                <div className="rounded-xl bg-[#F8F5FC] p-4 flex flex-col gap-3">
                     <div>
-                        <p className="text-xs text-gray-500">Indicaciones</p>
-                        <div className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900 line-clamp-2">
+                        <p className="text-xs text-gray-500 font-semibold mb-1">Indicaciones Generales</p>
+                        <div className="text-sm font-medium text-gray-900">
                             {prescription.description}
                         </div>
                     </div>
+                    
+                    {prescription.les_prescription_item && prescription.les_prescription_item.length > 0 && (
+                        <div className="border-t border-purple-100 pt-3">
+                            <p className="text-xs text-gray-500 font-semibold mb-2">Medicamentos (Autoprogramados en tu Calendario)</p>
+                            <ul className="space-y-2">
+                                {prescription.les_prescription_item.map(med => (
+                                    <li key={med.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white rounded-lg p-2 border border-purple-50">
+                                        <div className="font-semibold text-sm text-gray-800 flex items-center gap-2">
+                                            <Pill size={14} className="text-[#69409A]" />
+                                            {med.medication_name} <span className="text-gray-500 font-normal">({med.dosage})</span>
+                                        </div>
+                                        <div className="text-xs text-gray-500 font-medium">
+                                            {med.frequency} por {med.duration_days} días
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row">
-                    <button type="button" className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#69409A] px-4 py-2.5 text-xs font-semibold text-[#69409A] transition hover:bg-[#F4EEFA]">
-                        <FileText size={15} />
-                        Ver detalles
-                    </button>
                     <button type="button" className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#69409A] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#583383]">
-                        <Bell size={15} />
-                        Recordatorios
+                        <CalendarDays size={15} />
+                        Ver en el calendario
                     </button>
                 </div>
             </div>
