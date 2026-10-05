@@ -24,35 +24,27 @@ export class CommunityController {
     return this.communityService.toggleLike(user.id, postId);
   }
 
-  @Get('groups')
-  getGroups() {
-    return this.communityService.getGroups();
+  @Post('posts/:id/comments')
+  addComment(
+    @CurrentUser() user: LesUserResponseDto, 
+    @Param('id') postId: string, 
+    @Body() data: { content: string, mentions?: string[] }
+  ) {
+    return this.communityService.addComment(user.id, postId, data);
   }
 
-  // ----------------- POSTS (EDIT / DELETE) -----------------
   @Patch('posts/:id')
-  editPost(@CurrentUser() user: LesUserResponseDto, @Param('id') id: string, @Body() data: any) {
-    return this.communityService.editPost(user.id, id, data);
+  updatePost(@CurrentUser() user: LesUserResponseDto, @Param('id') postId: string, @Body() data: any) {
+    return this.communityService.updatePost(user.id, postId, data);
   }
 
   @Delete('posts/:id')
-  deletePost(@CurrentUser() user: LesUserResponseDto, @Param('id') id: string) {
-    return this.communityService.deletePost(user.id, id);
+  deletePost(@CurrentUser() user: LesUserResponseDto, @Param('id') postId: string) {
+    return this.communityService.deletePost(user.id, postId);
   }
 
-  // ----------------- COMMENTS -----------------
-  @Get('posts/:id/comments')
-  getComments(@Param('id') id: string) {
-    return this.communityService.getComments(id);
-  }
-
-  @Post('posts/:id/comments')
-  addComment(@CurrentUser() user: LesUserResponseDto, @Param('id') id: string, @Body() data: { content: string }) {
-    return this.communityService.addComment(user.id, id, data.content);
-  }
-
-  @Delete('comments/:id')
-  deleteComment(@CurrentUser() user: LesUserResponseDto, @Param('id') id: string) {
-    return this.communityService.deleteComment(user.id, id);
+  @Get('groups')
+  getGroups() {
+    return this.communityService.getGroups();
   }
 }

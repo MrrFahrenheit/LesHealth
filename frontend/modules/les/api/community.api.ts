@@ -20,8 +20,7 @@ export const getGroups = async () => {
     return response.data;
 };
 
-// --- Posts CRUD ---
-export const editPost = async (postId: string, data: { content?: string; image_url?: string; category?: string; tags?: string[] }) => {
+export const updatePost = async (postId: string, data: { content: string; image_url?: string }) => {
     const response = await apiClient.patch(`/community/posts/${postId}`, data);
     return response.data;
 };
@@ -31,18 +30,7 @@ export const deletePost = async (postId: string) => {
     return response.data;
 };
 
-// --- Comentarios ---
-export const getComments = async (postId: string) => {
-    const response = await apiClient.get(`/community/posts/${postId}/comments`);
-    return response.data;
-};
-
-export const addComment = async (postId: string, content: string) => {
-    const response = await apiClient.post(`/community/posts/${postId}/comments`, { content });
-    return response.data;
-};
-
-export const deleteComment = async (commentId: string) => {
-    const response = await apiClient.delete(`/community/comments/${commentId}`);
+export const addComment = async (postId: string, data: { content: string; mentions?: string[] }) => {
+    const response = await apiClient.post(`/community/posts/${postId}/comments`, data);
     return response.data;
 };
