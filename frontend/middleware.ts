@@ -33,6 +33,13 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
+  // 3. Ruta raíz sin sesión -> Redirigir a get-started
+  if (pathname === '/' && !token) {
+    const response = NextResponse.redirect(new URL('/get-started', request.url));
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    return response;
+  }
+
   return NextResponse.next();
 }
 
