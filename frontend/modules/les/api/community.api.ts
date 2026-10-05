@@ -34,3 +34,13 @@ export const addComment = async (postId: string, data: { content: string; mentio
     const response = await apiClient.post(`/community/posts/${postId}/comments`, data);
     return response.data;
 };
+
+export const getComments = async (postId: string) => {
+    const response = await apiClient.get(`/community/posts/${postId}/comments`);
+    return response.data;
+};
+
+export const deleteComment = async (commentId: string) => {
+    const response = await apiClient.delete(`/community/comments/${commentId}`);
+    return response.data;
+};

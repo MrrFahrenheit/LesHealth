@@ -38,14 +38,6 @@ export class CommunityService {
           where: { user_id: userId },
           select: { id: true },
         },
-        les_post_comment: {
-          orderBy: { created_at: 'asc' },
-          include: {
-            les_user: {
-              select: { id: true, full_name: true, avatar_url: true }
-            }
-          }
-        }
       },
     });
 
@@ -58,26 +50,99 @@ export class CommunityService {
 
   async updatePost(userId: string, postId: string, data: any) {
     const post = await this.prisma.les_post.findUnique({ where: { id: postId } });
-    if (!post || post.author_id !== userId) throw new Error('No autorizado');
+    if (!post || post.author_id !== userId) throw new Error("No autorizado o no encontrado");
 
     return this.prisma.les_post.update({
       where: { id: postId },
       data: {
         content: data.content,
         image_url: data.image_url,
-        updated_at: new Date(),
-      },
+        category: data.category,
+        tags: data.tags,
+      }
     });
   }
 
   async deletePost(userId: string, postId: string) {
     const post = await this.prisma.les_post.findUnique({ where: { id: postId } });
-    if (!post || post.author_id !== userId) throw new Error('No autorizado');
+    if (!post || post.author_id !== userId) throw new Error("No autorizado o no encontrado");
 
-    return this.prisma.les_post.delete({
-      where: { id: postId },
+    return this.prisma.les_post.delete({ where: { id: postId } });
+  }
+
+  // ----------------- COMMENTS -----------------
+  async getComments(postId: string) {
+    return this.prisma.les_post_comment.findMany({
+      where: { post_id: postId },
+      orderBy: { created_at: 'asc' },
+      include: {
+        les_user: {
+          select: { id: true, full_name: true, avatar_url: true }
+        }
+      }
     });
   }
+
+  async addComment(userId: string, postId: string, content: string) {
+    const comment = await this.prisma.les_post_comment.create({
+      data: {
+        post_id: postId,
+        author_id: userId,
+        content: content,
+      },
+      include: {
+        les_user: { select: { full_name: true, avatar_url: true } }
+      }
+    });
+
+    const post = await this.prisma.les_post.findUnique({ where: { id: postId }, select: { author_id: true } });
+    
+    // Notificación al dueño del post
+    if (post && post.author_id !== userId) {
+      await this.notificationService.createNotification(
+        post.author_id,
+        'Nuevo Comentario',
+        `${comment.les_user.full_name} comentó en tu publicación.`,
+        'COMMENT',
+        `/les/community`
+      );
+    }
+
+    // Buscar menciones usando regex simple: @Nombre
+    const mentions = content.match(/@(\w+)/g);
+    if (mentions) {
+      for (const mention of mentions) {
+        // En un caso real buscarías el user_name exacto, aquí buscamos por full_name parecido o ignoramos si no hay username
+        // Asumiendo que el tag usa el primer nombre
+        const nameQuery = mention.substring(1); 
+        const taggedUser = await this.prisma.les_user.findFirst({
+          where: { full_name: { contains: nameQuery, mode: 'insensitive' } },
+          select: { id: true }
+        });
+
+        if (taggedUser && taggedUser.id !== userId) {
+          await this.notificationService.createNotification(
+            taggedUser.id,
+            'Te han mencionado',
+            `${comment.les_user.full_name} te mencionó en un comentario.`,
+            'MENTION',
+            `/les/community`
+          );
+        }
+      }
+    }
+
+    return comment;
+  }
+
+  async deleteComment(userId: string, commentId: string) {
+    const comment = await this.prisma.les_post_comment.findUnique({ where: { id: commentId } });
+    if (!comment || comment.author_id !== userId) throw new Error("No autorizado o no encontrado");
+
+    return this.prisma.les_post_comment.delete({ where: { id: commentId } });
+  }
+
+  // ----------------- GROUPS -----------------
   async getGroups() {
     return this.prisma.les_community_group.findMany({
       include: {
@@ -127,57 +192,6 @@ export class CommunityService {
       );
     }
 
-      return { liked: true };
-    }
-
-  // ----------------- COMMENTS -----------------
-  async addComment(userId: string, postId: string, data: { content: string, mentions?: string[] }) {
-    const comment = await this.prisma.les_post_comment.create({
-      data: {
-        post_id: postId,
-        author_id: userId,
-        content: data.content,
-      },
-      include: {
-        les_user: { select: { full_name: true, avatar_url: true } }
-      }
-    });
-
-    const post = await this.prisma.les_post.findUnique({ where: { id: postId }, select: { author_id: true } });
-    
-    // Notificar al dueño del post
-    if (post && post.author_id !== userId) {
-      await this.notificationService.createNotification(
-        post.author_id,
-        'Nuevo Comentario',
-        `${comment.les_user.full_name} comentó en tu publicación.`,
-        'COMMENT',
-        `/les/community`
-      );
-    }
-
-    // Notificar a los mencionados (data.mentions contiene strings como "Juan", "Odallys")
-    if (data.mentions && data.mentions.length > 0) {
-      for (const mentionName of data.mentions) {
-        // Buscar al usuario por nombre (usando ilike o contains si es necesario, aquí exacto o por primer nombre)
-        // Como 'mentions' no tiene espacios (porque extrajimos con \w+), buscamos coincidencias en full_name
-        const mentionedUser = await this.prisma.les_user.findFirst({
-          where: { full_name: { contains: mentionName, mode: 'insensitive' } },
-          select: { id: true }
-        });
-
-        if (mentionedUser && mentionedUser.id !== userId) {
-          await this.notificationService.createNotification(
-            mentionedUser.id,
-            'Te mencionaron',
-            `${comment.les_user.full_name} te mencionó en un comentario.`,
-            'MENTION',
-            `/les/community`
-          );
-        }
-      }
-    }
-
-    return comment;
+    return { liked: true };
   }
 }

@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Post, Patch, Delete, UseGuards } from '@nestjs/common';
-import { CommunityService } from './community.service';
-import { SesionGuard } from 'src/common/guards/sesion.guard';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from 'src/common/decorators/current-user-decorator';
 import { LesUserResponseDto } from 'src/common/dto/les-user-dto';
+import { SesionGuard } from 'src/common/guards/sesion.guard';
+import { CommunityService } from './community.service';
 
 @Controller('community')
 @UseGuards(SesionGuard)
@@ -24,13 +24,23 @@ export class CommunityController {
     return this.communityService.toggleLike(user.id, postId);
   }
 
+  @Get('posts/:id/comments')
+  getComments(@Param('id') postId: string) {
+    return this.communityService.getComments(postId);
+  }
+
   @Post('posts/:id/comments')
   addComment(
     @CurrentUser() user: LesUserResponseDto, 
     @Param('id') postId: string, 
-    @Body() data: { content: string, mentions?: string[] }
+    @Body() data: { content: string }
   ) {
-    return this.communityService.addComment(user.id, postId, data);
+    return this.communityService.addComment(user.id, postId, data.content);
+  }
+
+  @Delete('comments/:id')
+  deleteComment(@CurrentUser() user: LesUserResponseDto, @Param('id') commentId: string) {
+    return this.communityService.deleteComment(user.id, commentId);
   }
 
   @Patch('posts/:id')

@@ -1,6 +1,6 @@
 "use client";
 
-import { createPost, getGroups, getPosts, toggleLikePost } from "@/modules/les/api/community.api";
+import { createPost, getGroups, getPosts, toggleLikePost, deletePost, getComments, addComment, deleteComment, updatePost } from "@/modules/les/api/community.api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowRight,
@@ -17,6 +17,7 @@ import {
     Users
 } from "lucide-react";
 import { useState } from "react";
+import { useUser } from "@/providers/userProvider";
 
 const trendingTopics: [string, number][] = [
     ["Fatiga y cansancio", 38],
@@ -26,6 +27,7 @@ const trendingTopics: [string, number][] = [
 ];
 
 export default function Page() {
+    const currentUser = useUser();
     const queryClient = useQueryClient();
     const [composerText, setComposerText] = useState("");
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -79,13 +81,53 @@ export default function Page() {
         }
     };
 
+    const deletePostMutation = useMutation({
+        mutationFn: (postId: string) => deletePost(postId),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["community_posts"] }),
+    });
+
+    const deleteCommentMutation = useMutation({
+        mutationFn: (commentId: string) => deleteComment(commentId),
+        onSuccess: (_, variables) => queryClient.invalidateQueries({ queryKey: ["comments"] }), // would need postId for exact invalidation, let's just invalidate all comments or rely on specific query
+    });
+
+    const updatePostMutation = useMutation({
+        mutationFn: ({ postId, content }: { postId: string, content: string }) => updatePost(postId, { content }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["community_posts"] });
+        },
+    });
+
     function PostCard({ post }: { post: any }) {
+        const [showMenu, setShowMenu] = useState(false);
+        const [showComments, setShowComments] = useState(false);
+        const [commentText, setCommentText] = useState("");
+        const [isEditing, setIsEditing] = useState(false);
+        const [editContent, setEditContent] = useState(post.content);
+
+        const { data: comments, isLoading: loadingComments } = useQuery({
+            queryKey: ["comments", post.id],
+            queryFn: () => getComments(post.id),
+            enabled: showComments,
+        });
+
+        const addCommentMutation = useMutation({
+            mutationFn: (content: string) => addComment(post.id, { content }),
+            onSuccess: () => {
+                setCommentText("");
+                queryClient.invalidateQueries({ queryKey: ["comments", post.id] });
+                queryClient.invalidateQueries({ queryKey: ["community_posts"] }); // update count
+            },
+        });
+
         const timeAgo = new Date(post.created_at).toLocaleDateString();
         const authorName = post.les_user?.full_name || "Usuario Desconocido";
         const authorRole = post.les_user?.role === "doctor" ? "Doctor" : "Paciente";
         const isVerified = post.les_user?.role === "doctor";
         const avatar = post.les_user?.avatar_url || `https://ui-avatars.com/api/?name=${authorName}&background=random`;
         
+        const isMyPost = currentUser?.id === post.author_id;
+
         return (
             <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
@@ -112,23 +154,82 @@ export default function Page() {
     
                             <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
                                 <span className="capitalize">{authorRole}</span>
-                                <span>·</span>
+                                <span>•</span>
                                 <span>{timeAgo}</span>
                             </div>
                         </div>
                     </div>
     
-                    <button
-                        type="button"
-                        className="rounded-lg p-2 text-gray-400 hover:bg-gray-50"
-                    >
-                        <MoreHorizontal size={18} />
-                    </button>
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setShowMenu(!showMenu)}
+                            className="rounded-lg p-2 text-gray-400 hover:bg-gray-50"
+                        >
+                            <MoreHorizontal size={18} />
+                        </button>
+                        
+                        {showMenu && isMyPost && (
+                            <div className="absolute right-0 top-full mt-1 w-32 rounded-lg bg-white p-1 shadow-lg border border-gray-100 z-10">
+                                <button 
+                                    onClick={() => {
+                                        setIsEditing(true);
+                                        setShowMenu(false);
+                                    }}
+                                    className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Editar
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        if (confirm("¿Seguro que quieres eliminar este post?")) {
+                                            deletePostMutation.mutate(post.id);
+                                        }
+                                        setShowMenu(false);
+                                    }}
+                                    className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-red-600 hover:bg-red-50"
+                                >
+                                    Eliminar
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
     
-                <p className="mt-4 text-sm leading-6 text-gray-600">
-                    {post.content}
-                </p>
+                {isEditing ? (
+                    <div className="mt-4">
+                        <textarea
+                            className="w-full p-3 border border-gray-200 rounded-lg text-sm text-gray-700 outline-none focus:border-[#69409A] resize-none"
+                            rows={3}
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                        />
+                        <div className="flex gap-2 justify-end mt-2">
+                            <button 
+                                onClick={() => {
+                                    setIsEditing(false);
+                                    setEditContent(post.content);
+                                }}
+                                className="text-xs font-medium text-gray-500 hover:text-gray-700"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    updatePostMutation.mutate({ postId: post.id, content: editContent });
+                                    setIsEditing(false);
+                                }}
+                                className="text-xs font-bold text-[#69409A] hover:text-[#583383]"
+                            >
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <p className="mt-4 text-sm leading-6 text-gray-600">
+                        {post.content}
+                    </p>
+                )}
     
                 {post.image_url && (
                     <div className="mt-4 overflow-hidden rounded-xl">
@@ -172,6 +273,7 @@ export default function Page() {
     
                         <button
                             type="button"
+                            onClick={() => setShowComments(!showComments)}
                             className="flex items-center gap-1.5 text-xs font-medium text-gray-500 transition hover:text-[#69409A]"
                         >
                             <MessageCircle size={17} />
@@ -181,12 +283,70 @@ export default function Page() {
     
                     <button
                         type="button"
+                        onClick={() => setShowComments(!showComments)}
                         className="flex items-center gap-1.5 text-xs font-semibold text-[#69409A]"
                     >
                         Comentar
                         <ArrowRight size={13} />
                     </button>
                 </div>
+
+                {showComments && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                        <div className="space-y-3 max-h-60 overflow-y-auto">
+                            {loadingComments ? (
+                                <p className="text-xs text-gray-400">Cargando comentarios...</p>
+                            ) : comments?.length === 0 ? (
+                                <p className="text-xs text-gray-400">Sé el primero en comentar.</p>
+                            ) : (
+                                comments?.map((c: any) => (
+                                    <div key={c.id} className="flex items-start gap-2 text-sm group">
+                                        <img src={c.les_user?.avatar_url || `https://ui-avatars.com/api/?name=${c.les_user?.full_name}&background=random`} className="w-8 h-8 rounded-full" />
+                                        <div className="bg-gray-50 rounded-xl p-3 flex-1">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-bold text-gray-800 text-xs">{c.les_user?.full_name}</span>
+                                                {currentUser?.id === c.author_id && (
+                                                    <button 
+                                                        onClick={() => {
+                                                            if (confirm("¿Eliminar comentario?")) deleteCommentMutation.mutate(c.id);
+                                                        }}
+                                                        className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        Eliminar
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p className="text-gray-600 text-xs mt-1">{c.content}</p>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                        <div className="mt-3 flex gap-2">
+                            <input 
+                                type="text"
+                                value={commentText}
+                                onChange={(e) => setCommentText(e.target.value)}
+                                placeholder="Escribe un comentario... Usa @ para etiquetar."
+                                className="flex-1 rounded-full bg-gray-50 px-4 py-2 text-xs outline-none focus:ring-2 focus:ring-[#69409A]/20"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && commentText.trim()) {
+                                        addCommentMutation.mutate(commentText);
+                                    }
+                                }}
+                            />
+                            <button 
+                                onClick={() => {
+                                    if (commentText.trim()) addCommentMutation.mutate(commentText);
+                                }}
+                                disabled={!commentText.trim() || addCommentMutation.isPending}
+                                className="rounded-full bg-[#69409A] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                            >
+                                Enviar
+                            </button>
+                        </div>
+                    </div>
+                )}
             </article>
         );
     }
