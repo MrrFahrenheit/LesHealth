@@ -49,7 +49,7 @@ export class MailService {
       const { data, error } = await this.resend.emails.send({
         // IMPORTANTE: resend.dev solo permite enviar correos a la dirección registrada en la cuenta de Resend (la tuya).
         // Para enviar a cualquier persona, debes verificar un dominio en tu cuenta de Resend.
-        from: 'LES Health <onboarding@resend.dev>', 
+        from: 'LES Health <leshealthaccounts.com>', 
         to: [to],
         subject: subject,
         html: htmlContent,
