@@ -26,13 +26,11 @@ export class RoutineEventController {
   }
 
   @Patch(':id')
-  @CheckOwner({ source: 'body', fieldPath: 'patient_id' })
   update(@Param('id') id: string, @Body() updateRoutineEventDto: UpdateRoutineEventDto) {
     return this.routineEventService.update(id, updateRoutineEventDto);
   }
 
   @Delete(':id')
-  @CheckOwner({ source: 'body', fieldPath: 'patient_id' })
   remove(@Param('id') id: string) {
     return this.routineEventService.remove(id);
   }

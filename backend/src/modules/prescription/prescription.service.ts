@@ -9,8 +9,9 @@ export class PrescriptionService {
 
   async create(createPrescriptionDto: CreatePrescriptionDto, patient_id: string) {
     try {
-      const { doctor_id, description, prescribed_date } = createPrescriptionDto;
-      return await this.prismaService.les_user_prescription.create({
+      const { doctor_id, description, prescribed_date, medications } = createPrescriptionDto;
+      
+      const prescription = await this.prismaService.les_user_prescription.create({
         data: {
           description,
           prescribed_date,
@@ -19,10 +20,66 @@ export class PrescriptionService {
           },
           les_user_les_user_prescription_doctor_idToles_user: {
             connect: { id: doctor_id }
-          }
+          },
+          ...(medications && medications.length > 0 && {
+            les_prescription_item: {
+              create: medications.map(med => ({
+                medication_name: med.medication_name,
+                dosage: med.dosage,
+                frequency: med.frequency,
+                duration_days: med.duration_days,
+                notes: med.notes
+              }))
+            }
+          })
         },
+        include: { les_prescription_item: true }
       });
+
+      if (medications && medications.length > 0) {
+        for (const med of medications) {
+          const routine = await this.prismaService.les_user_routine.create({
+            data: {
+              user_id: patient_id,
+              title: med.medication_name,
+              description: `Dosis: ${med.dosage}. Notas: ${med.notes || ''}`,
+              frequency: med.frequency,
+            }
+          });
+
+          let hoursInterval = 24;
+          const match = med.frequency.match(/cada\s+(\d+)\s+hora/i);
+          if (match && match[1]) {
+            hoursInterval = parseInt(match[1]);
+          }
+
+          const durationDays = med.duration_days || 7;
+          const eventsData = [];
+          const startDate = new Date();
+          
+          const totalEvents = Math.floor((24 / hoursInterval) * durationDays);
+          for(let i = 0; i < totalEvents; i++) {
+             const scheduledFor = new Date(startDate.getTime() + (i * hoursInterval * 60 * 60 * 1000));
+             eventsData.push({
+               routine_id: routine.id,
+               title: med.medication_name,
+               description: med.dosage,
+               event_type: 'medication' as const,
+               scheduled_for: scheduledFor
+             });
+          }
+
+          if (eventsData.length > 0) {
+            await this.prismaService.les_routine_event.createMany({
+              data: eventsData
+            });
+          }
+        }
+      }
+
+      return prescription;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException('Error al crear la receta');
     }
   }
@@ -34,7 +91,8 @@ export class PrescriptionService {
         include: {
           les_user_les_user_prescription_doctor_idToles_user: {
             select: { full_name: true, specialty: true }
-          }
+          },
+          les_prescription_item: true
         }
       });
     } catch (error) {
