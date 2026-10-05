@@ -100,4 +100,111 @@ export class CommunityService {
 
     return { liked: true };
   }
+
+  // ----------------- POSTS (EDIT / DELETE) -----------------
+  async editPost(userId: string, postId: string, data: any) {
+    const post = await this.prisma.les_post.findUnique({ where: { id: postId } });
+    if (!post || post.author_id !== userId) {
+      throw new Error("No puedes editar esta publicación");
+    }
+    return this.prisma.les_post.update({
+      where: { id: postId },
+      data: {
+        content: data.content,
+        image_url: data.image_url,
+        category: data.category,
+        tags: data.tags,
+      }
+    });
+  }
+
+  async deletePost(userId: string, postId: string) {
+    const post = await this.prisma.les_post.findUnique({ where: { id: postId } });
+    if (!post || post.author_id !== userId) {
+      throw new Error("No puedes eliminar esta publicación");
+    }
+    return this.prisma.les_post.delete({
+      where: { id: postId }
+    });
+  }
+
+  // ----------------- COMMENTS & TAGGING -----------------
+  async addComment(userId: string, postId: string, content: string) {
+    const user = await this.prisma.les_user.findUnique({ where: { id: userId }, select: { full_name: true } });
+    const post = await this.prisma.les_post.findUnique({ where: { id: postId }, select: { author_id: true } });
+
+    const comment = await this.prisma.les_post_comment.create({
+      data: {
+        content,
+        author_id: userId,
+        post_id: postId,
+      },
+      include: {
+        les_user: { select: { full_name: true, avatar_url: true } }
+      }
+    });
+
+    // Notificar al autor del post (si no es él mismo)
+    if (post && user && post.author_id !== userId) {
+      await this.notificationService.createNotification(
+        post.author_id,
+        'Nuevo Comentario',
+        `${user.full_name} comentó en tu publicación: "${content.substring(0, 30)}..."`,
+        'COMMENT',
+        `/les/community`
+      );
+    }
+
+    // Detectar etiquetas: @Nombre (usando regex simple para atrapar la primera palabra)
+    const tagRegex = /@([a-zA-Z0-9_]+)/g;
+    const tags = [...content.matchAll(tagRegex)].map(m => m[1]);
+
+    if (tags.length > 0 && user) {
+      // Buscar usuarios cuyo primer nombre coincida
+      for (const tag of tags) {
+        const taggedUsers = await this.prisma.les_user.findMany({
+          where: {
+            full_name: {
+              startsWith: tag,
+              mode: 'insensitive'
+            }
+          },
+          take: 1
+        });
+
+        if (taggedUsers.length > 0) {
+          const taggedUser = taggedUsers[0];
+          if (taggedUser.id !== userId) { // No te notifiques a ti mismo si te auto-etiquetas
+            await this.notificationService.createNotification(
+              taggedUser.id,
+              'Te han mencionado',
+              `${user.full_name} te mencionó en un comentario.`,
+              'MENTION',
+              `/les/community`
+            );
+          }
+        }
+      }
+    }
+
+    return comment;
+  }
+
+  async getComments(postId: string) {
+    return this.prisma.les_post_comment.findMany({
+      where: { post_id: postId },
+      orderBy: { created_at: 'asc' },
+      include: {
+        les_user: { select: { id: true, full_name: true, avatar_url: true } }
+      }
+    });
+  }
+
+  async deleteComment(userId: string, commentId: string) {
+    const comment = await this.prisma.les_post_comment.findUnique({ where: { id: commentId } });
+    if (!comment || comment.author_id !== userId) {
+      throw new Error("No puedes eliminar este comentario");
+    }
+    return this.prisma.les_post_comment.delete({ where: { id: commentId } });
+  }
 }
