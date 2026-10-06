@@ -9,9 +9,11 @@ export class SignService {
 
     async create(createSignDto: CreateSignDto, userId: string) {
         try {
+            const { type, value } = createSignDto;
             const result = await this.prismaService.les_user_sign.create({
                 data: {
-                    ...createSignDto,
+                    type,
+                    value,
                     les_user: {
                         connect: {
                             id: userId

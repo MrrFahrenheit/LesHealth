@@ -1,5 +1,6 @@
 "use client";
 import { logoutUser } from "@/modules/les/configurations/lib/logout";
+import Link from "next/link";
 import {
     ArrowRight,
     Bell,
@@ -338,15 +339,15 @@ export default function Page() {
                                     </div>
                                 </div>
 
-                                <button
-                                    type="button"
+                                <Link
+                                    href="/les/configurations/verification"
                                     className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#69409A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#583383] active:scale-95"
                                 >
                                     Verificarme como especialista
                                     <ArrowRight
                                         size={16}
                                     />
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </section>

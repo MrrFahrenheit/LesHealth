@@ -15,8 +15,13 @@ export class SignController {
 
     @Post()
     async create(@CurrentUser() user: LesUserResponseDto, @Body() createSignDto: CreateSignDto) {
-        console.log(user)
-        const result = await this.signService.create(createSignDto, user.id);
+        let patient_id = user.id;
+        
+        if (user.role === 'doctor' && createSignDto.patient_id) {
+            patient_id = createSignDto.patient_id;
+        }
+
+        const result = await this.signService.create(createSignDto, patient_id);
 
         return result;
     }

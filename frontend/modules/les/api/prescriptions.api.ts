@@ -28,6 +28,7 @@ export const getPatientPrescriptions = async (): Promise<Prescription[]> => {
 };
 
 export const createPrescription = async (prescriptionData: { 
+    patient_id?: string;
     doctor_id: string; 
     description: string; 
     prescribed_date: string;

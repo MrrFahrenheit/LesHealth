@@ -10,6 +10,15 @@ export class LesUserResponseDto {
     @Expose()
     email!: string;
 
+    @Expose()
+    isemailverified!: boolean;
+
+    @Expose()
+    is_verified_doctor?: boolean;
+
+    @Expose()
+    role?: string;
+
     //EXCLUIR
     @Exclude()
     password_hash!: string;

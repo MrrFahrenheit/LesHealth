@@ -65,4 +65,28 @@ export class MailService {
       this.logger.error('Excepción al enviar correo', err);
     }
   }
+
+  async sendMail(to: string, subject: string, html: string) {
+    if (!this.transporter) {
+      this.logger.log(`\n================ SIMULACIÓN DE CORREO ================`);
+      this.logger.log(`Para: ${to}`);
+      this.logger.log(`Asunto: ${subject}`);
+      this.logger.log(`HTML: ${html}`);
+      this.logger.log(`======================================================\n`);
+      return;
+    }
+
+    try {
+      const info = await this.transporter.sendMail({
+        from: `"LES Health" <${process.env.SMTP_USER}>`,
+        to: to,
+        subject: subject,
+        html: html,
+      });
+
+      this.logger.log(`Mensaje enviado exitosamente. ID: ${info.messageId}`);
+    } catch (err) {
+      this.logger.error('Excepción al enviar correo genérico', err);
+    }
+  }
 }

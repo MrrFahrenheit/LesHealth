@@ -202,7 +202,7 @@ export default function Page() {
                                         <input required placeholder="Frecuencia (ej. Cada 8 horas)" value={med.frequency} onChange={e => { const m = [...medications]; m[idx].frequency = e.target.value; setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                                     </div>
                                     <div>
-                                        <input type="number" min={1} required placeholder="Días de duración" value={med.duration_days} onChange={e => { const m = [...medications]; m[idx].duration_days = parseInt(e.target.value); setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                                        <input type="number" min={1} required placeholder="Días de duración" value={med.duration_days || ''} onChange={e => { const m = [...medications]; m[idx].duration_days = parseInt(e.target.value) || 7; setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                                     </div>
                                     <div>
                                         <input placeholder="Notas adicionales" value={med.notes} onChange={e => { const m = [...medications]; m[idx].notes = e.target.value; setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />

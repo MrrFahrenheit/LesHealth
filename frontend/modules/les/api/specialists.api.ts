@@ -29,3 +29,17 @@ export const getDoctors = async (): Promise<Doctor[]> => {
   return data;
 };
 
+
+export type Patient = {
+  id: string;
+  email: string;
+  full_name: string;
+  avatar_url?: string;
+  les_user_medical_info?: any;
+};
+
+export const getMyPatients = async (): Promise<Patient[]> => {
+  const { data } = await apiClient.get('/user/my-patients');
+  return data;
+};
+

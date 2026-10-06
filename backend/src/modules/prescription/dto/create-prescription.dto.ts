@@ -22,7 +22,12 @@ export class PrescriptionItemDto {
 
 export class CreatePrescriptionDto {
     @IsString()
-    doctor_id: string;
+    @IsOptional()
+    doctor_id?: string;
+
+    @IsString()
+    @IsOptional()
+    patient_id?: string;
 
     @IsString()
     description: string;

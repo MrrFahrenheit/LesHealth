@@ -32,10 +32,13 @@ export const navBarInfo: Array<NavBarItem> = [
     { label: "Comunidad", icon: Users, url: "/les/comunity" },
 ];
 
+import { useUser } from '@/providers/userProvider';
+
 export default function LeftNavBar() {
     // Estado para controlar el menú en pantallas pequeñas
     const [isOpen, setIsOpen] = useState(false);
     const [actualIndex, setActualIndex] = useState<number>(0);
+    const user = useUser();
 
     // Cierra el menú al hacer clic en cualquier enlace (solo afecta en móvil)
     const closeMenu = () => { setIsOpen(false) };
@@ -123,6 +126,26 @@ export default function LeftNavBar() {
                             </Link>
                         )
                     })}
+
+                    {/* Mostrar opción para doctores si es doctor */}
+                    {(user?.role === 'doctor' || user?.is_verified_doctor) && (
+                        <Link
+                            href="/les/for-specialists"
+                            onClick={() => { closeMenu(); setActualIndex(navBarInfo.length); }}
+                            className={`
+                                flex items-center gap-4 
+                                px-4 py-3 
+                                rounded-xl 
+                                transition-all duration-200
+                                hover:bg-white/10 hover:translate-x-1 ${actualIndex == navBarInfo.length && "bg-[#7A4D9A]"}`
+                            }
+                        >
+                            <UserCheck className="w-5 h-5 text-gray-300" />
+                            <span className="font-medium text-sm text-gray-100">
+                                Portal Especialistas
+                            </span>
+                        </Link>
+                    )}
 
                     {/* Botones inferiores (Configuración y Ayuda) */}
                     <div className="flex items-center w-full justify-center mt-1 border-t md:border-none border-white/10 pt-4 md:pt-0">

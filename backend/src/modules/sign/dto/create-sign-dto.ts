@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, IsUUID } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString, IsOptional, IsUUID } from "class-validator";
 
 export class CreateSignDto{
     @IsString()
@@ -7,5 +7,9 @@ export class CreateSignDto{
 
     @IsNumber()
     @IsNotEmpty()
-    value!:number
+    value!:number;
+
+    @IsOptional()
+    @IsString()
+    patient_id?: string;
 }

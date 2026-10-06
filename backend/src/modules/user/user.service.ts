@@ -48,6 +48,25 @@ export class UserService {
     })
   }
 
+  // Obtener los pacientes de un doctor
+  async getMyPatients(doctorId: string) {
+    return this.prismaService.les_user.findMany({
+      where: {
+        OR: [
+          { les_user_prescription_les_user_prescription_patient_idToles_user: { some: { doctor_id: doctorId } } },
+          { les_user_reservation_les_user_reservation_patient_idToles_user: { some: { doctor_id: doctorId } } }
+        ]
+      },
+      select: {
+        id: true,
+        full_name: true,
+        email: true,
+        avatar_url: true,
+        les_user_medical_info: true,
+      }
+    });
+  }
+
   // 5. Crear o Actualizar la información médica (Upsert)
   async upsertMedicalInfo(
     patientId: string,
@@ -96,5 +115,58 @@ export class UserService {
     } catch (error) {
       throw new NotFoundException(`No se pudo eliminar: Usuario con ID ${id} no existe`);
     }
+  }
+
+  // 8. Enviar verificación de especialista
+  async submitSpecialistVerification(userId: string, frontUrl: string, backUrl: string) {
+    const request = await this.prismaService.les_verification_request.upsert({
+      where: { user_id: userId },
+      update: {
+        license_front_url: frontUrl,
+        license_back_url: backUrl,
+        status: 'pending',
+      },
+      create: {
+        user_id: userId,
+        license_front_url: frontUrl,
+        license_back_url: backUrl,
+        status: 'pending',
+      },
+    });
+
+    return { message: 'Verification submitted successfully', request };
+  }
+
+  // 9. Aprobar especialista (Admin only - ideally protected by admin guard)
+  async approveSpecialist(userId: string) {
+    // 1. Marcar la solicitud como aprobada
+    await this.prismaService.les_verification_request.updateMany({
+      where: { user_id: userId, status: 'pending' },
+      data: { status: 'approved' },
+    });
+
+    // 2. Actualizar el rol del usuario
+    const user = await this.prismaService.les_user.update({
+      where: { id: userId },
+      data: {
+        is_verified_doctor: true,
+        role: 'doctor', // Asumimos que al verificar se vuelve doctor
+      },
+    });
+
+    // 3. Crear el perfil de doctor automáticamente
+    await this.prismaService.les_doctor_profile.upsert({
+      where: { user_id: userId },
+      update: {},
+      create: {
+        user_id: userId,
+        name: user.full_name,
+        specialty: user.specialty || 'General',
+        location: 'Ubicación no especificada',
+        image_url: user.avatar_url,
+      },
+    });
+
+    return { message: 'Specialist approved successfully', user: { id: user.id, is_verified_doctor: user.is_verified_doctor } };
   }
 }

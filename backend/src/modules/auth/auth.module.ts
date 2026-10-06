@@ -7,7 +7,7 @@ import { MailService } from "./mail.service";
 @Module({
     controllers:[AuthController],
     providers:[AuthService, SesionService, MailService],
-    exports:[AuthService]
+    exports:[AuthService, MailService]
 })
 
 export class AuthModule {}

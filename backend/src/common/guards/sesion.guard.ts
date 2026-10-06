@@ -35,6 +35,8 @@ export class SesionGuard implements CanActivate {
             email: true,
             full_name: true,
             isemailverified: true,
+            is_verified_doctor: true,
+            role: true,
           },
         },
       },

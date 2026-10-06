@@ -17,7 +17,23 @@ export class PrescriptionController {
 
   @Post()
   create(@Body() createPrescriptionDto: CreatePrescriptionDto, @CurrentUser() user: any) {
-    return this.prescriptionService.create(createPrescriptionDto, user.id);
+    let patient_id = user.id;
+    let doctor_id = createPrescriptionDto.doctor_id;
+
+    if (user.role === 'doctor') {
+      patient_id = createPrescriptionDto.patient_id;
+      doctor_id = user.id;
+    }
+
+    if (!patient_id || !doctor_id) {
+      const { BadRequestException } = require('@nestjs/common');
+      throw new BadRequestException('Se requieren patient_id y doctor_id válidos');
+    }
+
+    // Overwrite the DTO values so the service gets the correct ones
+    createPrescriptionDto.doctor_id = doctor_id;
+
+    return this.prescriptionService.create(createPrescriptionDto, patient_id);
   }
 
   @Get('patient')
