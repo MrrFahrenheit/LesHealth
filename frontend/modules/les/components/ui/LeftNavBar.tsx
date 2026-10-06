@@ -102,7 +102,8 @@ export default function LeftNavBar() {
                     />
                 </div>
 
-                {/* Menú de Navegación */}                <nav className="flex flex-col gap-2 flex-1 md:overflow-y-auto overflow-y-scroll md:max-h-full max-h-96 w-full md:overflow-x-hidden">
+                {/* Menú de Navegación */}
+                <nav className="flex flex-col gap-2 flex-1 md:overflow-y-auto overflow-y-scroll md:max-h-full max-h-96 w-full md:overflow-x-hidden custom-scrollbar">
                     {navBarInfo.map((current, index) => {
                         const Icon = current.icon;
 

@@ -46,6 +46,7 @@ export class UserController{
         return await this.userService.updateUser(user.id, updateData);
     }
 
+
     @Post('submit-verification')
     @UseGuards(SesionGuard)
     async submitVerification(

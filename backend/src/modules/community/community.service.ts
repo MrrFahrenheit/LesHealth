@@ -1,13 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { NotificationService } from '../notification/notification.service';
+import { ModerationService } from '../moderation/moderation.service';
 
 @Injectable()
 export class CommunityService {
-  constructor(private prisma: PrismaService, private notificationService: NotificationService) {}
+  constructor(
+    private prisma: PrismaService, 
+    private notificationService: NotificationService,
+    private moderationService: ModerationService
+  ) {}
 
   // ----------------- POSTS -----------------
   async createPost(userId: string, data: any) {
+    if (data.content) {
+      await this.moderationService.validateTextOrThrow(data.content);
+    }
+    if (data.image_url) {
+      await this.moderationService.validateImageUrlOrThrow(data.image_url);
+    }
+
     return this.prisma.les_post.create({
       data: {
         content: data.content,
@@ -52,6 +64,13 @@ export class CommunityService {
     const post = await this.prisma.les_post.findUnique({ where: { id: postId } });
     if (!post || post.author_id !== userId) throw new Error("No autorizado o no encontrado");
 
+    if (data.content) {
+      await this.moderationService.validateTextOrThrow(data.content);
+    }
+    if (data.image_url) {
+      await this.moderationService.validateImageUrlOrThrow(data.image_url);
+    }
+
     return this.prisma.les_post.update({
       where: { id: postId },
       data: {
@@ -84,6 +103,10 @@ export class CommunityService {
   }
 
   async addComment(userId: string, postId: string, content: string) {
+    if (content) {
+      await this.moderationService.validateTextOrThrow(content);
+    }
+
     const comment = await this.prisma.les_post_comment.create({
       data: {
         post_id: postId,

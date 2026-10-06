@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { createPost, getGroups, getPosts, toggleLikePost, deletePost, getComments, addComment, deleteComment, updatePost } from "@/modules/les/api/community.api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -21,7 +21,7 @@ import { useUser } from "@/providers/userProvider";
 
 const trendingTopics: [string, number][] = [
     ["Fatiga y cansancio", 38],
-    ["Alimentación antiinflamatoria", 31],
+    ["AlimentaciÃ³n antiinflamatoria", 31],
     ["Ejercicio suave", 24],
     ["Salud mental", 19],
 ];
@@ -75,7 +75,7 @@ export default function Page() {
             await createPostMutation.mutateAsync({ content: composerText, image_url: uploadedUrl });
         } catch (error) {
             console.error("Error al publicar:", error);
-            alert("Hubo un error al publicar. Inténtalo de nuevo.");
+            import("sonner").then(({toast}) => toast.error(error?.response?.data?.message || "Hubo un error al publicar"));
         } finally {
             setIsUploading(false);
         }
@@ -154,7 +154,7 @@ export default function Page() {
     
                             <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
                                 <span className="capitalize">{authorRole}</span>
-                                <span>•</span>
+                                <span>â€¢</span>
                                 <span>{timeAgo}</span>
                             </div>
                         </div>
@@ -182,7 +182,7 @@ export default function Page() {
                                 </button>
                                 <button 
                                     onClick={() => {
-                                        if (confirm("¿Seguro que quieres eliminar este post?")) {
+                                        if (confirm("Â¿Seguro que quieres eliminar este post?")) {
                                             deletePostMutation.mutate(post.id);
                                         }
                                         setShowMenu(false);
@@ -235,7 +235,7 @@ export default function Page() {
                     <div className="mt-4 overflow-hidden rounded-xl">
                         <img
                             src={post.image_url}
-                            alt="Contenido de la publicación"
+                            alt="Contenido de la publicaciÃ³n"
                             className="max-h-[360px] w-full object-cover"
                         />
                     </div>
@@ -297,7 +297,7 @@ export default function Page() {
                             {loadingComments ? (
                                 <p className="text-xs text-gray-400">Cargando comentarios...</p>
                             ) : comments?.length === 0 ? (
-                                <p className="text-xs text-gray-400">Sé el primero en comentar.</p>
+                                <p className="text-xs text-gray-400">SÃ© el primero en comentar.</p>
                             ) : (
                                 comments?.map((c: any) => (
                                     <div key={c.id} className="flex items-start gap-2 text-sm group">
@@ -308,7 +308,7 @@ export default function Page() {
                                                 {currentUser?.id === c.author_id && (
                                                     <button 
                                                         onClick={() => {
-                                                            if (confirm("¿Eliminar comentario?")) deleteCommentMutation.mutate(c.id);
+                                                            if (confirm("Â¿Eliminar comentario?")) deleteCommentMutation.mutate(c.id);
                                                         }}
                                                         className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                                     >
@@ -362,7 +362,7 @@ export default function Page() {
 
                         <p className="mt-1 text-sm text-gray-500">
                             Comparte, aprende y conecta con personas que
-                            entienden lo que estás viviendo.
+                            entienden lo que estÃ¡s viviendo.
                         </p>
                     </div>
 
@@ -371,7 +371,7 @@ export default function Page() {
                         className="flex w-fit items-center gap-2 rounded-xl bg-[#69409A] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#583383] active:scale-95"
                     >
                         <Plus size={17} />
-                        Crear publicación
+                        Crear publicaciÃ³n
                     </button>
                 </div>
 
@@ -454,7 +454,7 @@ export default function Page() {
                             {[
                                 "Para ti",
                                 "Siguiendo",
-                                "Más populares",
+                                "MÃ¡s populares",
                                 "Preguntas",
                             ].map((tab, index) => (
                                 <button
@@ -484,7 +484,7 @@ export default function Page() {
                                     <PostCard key={post.id} post={post} />
                                 ))
                             ) : (
-                                <p className="text-sm text-gray-500">No hay publicaciones aún.</p>
+                                <p className="text-sm text-gray-500">No hay publicaciones aÃºn.</p>
                             )}
                         </div>
 
@@ -688,7 +688,7 @@ export default function Page() {
 
                                     <p className="mt-2 text-[11px] leading-5 text-gray-500">
                                         Recuerda que las experiencias de otros
-                                        usuarios no sustituyen la valoración
+                                        usuarios no sustituyen la valoraciÃ³n
                                         de un profesional de la salud.
                                     </p>
                                 </div>
@@ -735,3 +735,4 @@ export default function Page() {
         </main>
     );
 }
+
