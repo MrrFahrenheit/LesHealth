@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUserRoutines, updateRoutineEvent } from '@/modules/les/api/routines.api';
+import { getTestResults } from '@/modules/les/api/signs.api';
 import { useUser } from '@/providers/userProvider';
 import { ChevronLeft, ChevronRight, CheckCircle2, Circle, Clock, Pill } from 'lucide-react';
 import { Loader } from '@/components/ui/Loader';
@@ -16,9 +17,15 @@ export const MedicationCalendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
 
-    const { data: routines, isLoading } = useQuery({
+    const { data: routines, isLoading: routinesLoading } = useQuery({
         queryKey: ['routines', userId],
         queryFn: () => getUserRoutines(userId),
+        enabled: !!userId
+    });
+
+    const { data: testResults, isLoading: resultsLoading } = useQuery({
+        queryKey: ['test-results'],
+        queryFn: getTestResults,
         enabled: !!userId
     });
 
@@ -48,14 +55,28 @@ export const MedicationCalendar = () => {
 
     // Process events
     const allEvents = useMemo(() => {
-        if (!routines) return [];
-        return routines.flatMap(r => 
-            r.les_routine_event.map(e => ({
-                ...e,
-                routine_title: r.title
-            }))
-        ).filter(e => e.event_type === 'medication' && e.scheduled_for);
-    }, [routines]);
+        const events: any[] = [];
+        if (routines) {
+            events.push(...routines.flatMap(r => 
+                r.les_routine_event.map(e => ({
+                    ...e,
+                    routine_title: r.title,
+                    type: 'medication'
+                }))
+            ).filter(e => e.event_type === 'medication' && e.scheduled_for));
+        }
+        if (testResults) {
+            events.push(...testResults.map((r: any) => ({
+                id: `result-${r.id}`,
+                title: r.test_name,
+                routine_title: `Resultado: ${r.value} ${r.unit || ''}`,
+                scheduled_for: r.date,
+                is_pending: false,
+                type: 'test-result'
+            })));
+        }
+        return events;
+    }, [routines, testResults]);
 
     const isSameDay = (d1: Date, d2: Date) => {
         return d1.getFullYear() === d2.getFullYear() &&
@@ -77,6 +98,7 @@ export const MedicationCalendar = () => {
     const totalCount = selectedEvents.length;
 
     const toggleEventStatus = (event: any) => {
+        if (event.type === 'test-result') return; // Cannot toggle test results
         const isPending = !event.is_pending;
         updateEventMutation.mutate({
             id: event.id,
@@ -85,7 +107,7 @@ export const MedicationCalendar = () => {
         });
     };
 
-    if (isLoading) return <Loader text="Cargando calendario..." />;
+    if (routinesLoading || resultsLoading) return <Loader text="Cargando calendario..." />;
 
     return (
         <div className="flex flex-col xl:flex-row gap-6 mt-6">
@@ -182,12 +204,18 @@ export const MedicationCalendar = () => {
                                         )}
                                     </button>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className={`font-semibold truncate ${!event.is_pending ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                                        <h4 className={`font-semibold truncate ${!event.is_pending && event.type !== 'test-result' ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
                                             {event.title}
                                         </h4>
                                         <p className="text-xs text-gray-500 truncate flex items-center gap-1 mt-0.5">
-                                            <Clock size={12} />
-                                            {new Date(event.scheduled_for!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {event.type === 'test-result' ? (
+                                                <span>{event.routine_title}</span>
+                                            ) : (
+                                                <>
+                                                    <Clock size={12} />
+                                                    {new Date(event.scheduled_for!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </>
+                                            )}
                                         </p>
                                     </div>
                                 </div>

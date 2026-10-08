@@ -37,3 +37,14 @@ export const createPrescription = async (prescriptionData: {
   const { data } = await apiClient.post('/prescription', prescriptionData);
   return data;
 };
+
+export const updatePrescription = async (id: string, updateData: any) => {
+  const { data } = await apiClient.patch(`/prescription/${id}`, updateData);
+  return data;
+};
+
+export const deletePrescription = async (id: string) => {
+  const { data } = await apiClient.delete(`/prescription/${id}`);
+  return data;
+};
+

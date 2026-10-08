@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Query, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post, Query, Param, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { SignService } from "./sign.service";
 import { SesionGuard } from "src/common/guards/sesion.guard";
 import { CurrentUser } from "src/common/decorators/current-user-decorator";
@@ -54,7 +54,21 @@ export class SignController {
             return new UnauthorizedException("");
         }
         const result = await this.signService.updateSign(updateUserSignDto);
-
         return result;
+    }
+
+    @Get('test-results')
+    async getTestResults(@CurrentUser() user: LesUserResponseDto) {
+        return await this.signService.getTestResults(user.id);
+    }
+
+    @Post('test-results')
+    async createTestResult(@CurrentUser() user: LesUserResponseDto, @Body() data: any) {
+        return await this.signService.createTestResult(user.id, data);
+    }
+    
+    @Delete('test-results/:id')
+    async deleteTestResult(@CurrentUser() user: LesUserResponseDto, @Param('id') id: string) {
+        return await this.signService.deleteTestResult(id);
     }
 }

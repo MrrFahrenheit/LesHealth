@@ -1,6 +1,7 @@
 import Chart from "@/modules/les/components/ui/Chart";
 import HealthSignsPanel from "@/modules/les/components/ui/HealthSignsPanel";
 import HealthStatItem from "@/modules/les/components/ui/HealthStatItem";
+import TestResultsPanel from "@/modules/les/components/ui/TestResultsPanel";
 import {
     Heart,
     Moon,
@@ -36,62 +37,7 @@ export default function Page() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                    <HealthStatItem
-                        icon={<FlaskConical className="w-5 h-5 text-purple-500" />}
-                        iconBg="bg-purple-50"
-                        title="Hemoglobina"
-                        value="14.2"
-                        unit="g/dL"
-                        badgeText="Normal"
-                        badgeColor="bg-green-100 text-green-700"
-                    />
-                    <HealthStatItem
-                        icon={<TestTube className="w-5 h-5 text-blue-500" />}
-                        iconBg="bg-blue-50"
-                        title="Colesterol total"
-                        value="178"
-                        unit="mg/dL"
-                        badgeText="Normal"
-                        badgeColor="bg-green-100 text-green-700"
-                    />
-                    <HealthStatItem
-                        icon={<Activity className="w-5 h-5 text-orange-500" />}
-                        iconBg="bg-orange-50"
-                        title="Triglicéridos"
-                        value="124"
-                        unit="mg/dL"
-                        badgeText="Normal"
-                        badgeColor="bg-green-100 text-green-700"
-                    />
-                    <HealthStatItem
-                        icon={<Droplets className="w-5 h-5 text-cyan-500" />}
-                        iconBg="bg-cyan-50"
-                        title="Creatinina"
-                        value="0.9"
-                        unit="mg/dL"
-                        badgeText="Normal"
-                        badgeColor="bg-green-100 text-green-700"
-                    />
-                    <HealthStatItem
-                        icon={<FileText className="w-5 h-5 text-emerald-500" />}
-                        iconBg="bg-emerald-50"
-                        title="Examen general de orina"
-                        value="Normal"
-                        unit=""
-                        badgeText="Sin alteraciones"
-                        badgeColor="bg-green-100 text-green-700"
-                    />
-                    <HealthStatItem
-                        icon={<FlaskConical className="w-5 h-5 text-pink-500" />}
-                        iconBg="bg-pink-50"
-                        title="Proteína C reactiva"
-                        value="2.1"
-                        unit="mg/L"
-                        badgeText="Normal"
-                        badgeColor="bg-green-100 text-green-700"
-                    />
-                </div>
+                <TestResultsPanel />
             </section>
         </div>
     );

@@ -6,11 +6,11 @@ export class PrescriptionService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: any) {
-    const { items, ...prescriptionData } = data;
+    const { medications, ...prescriptionData } = data;
     return this.prisma.les_user_prescription.create({
       data: {
         ...prescriptionData,
-        les_prescription_item: items ? { create: items } : undefined,
+        les_prescription_item: medications ? { create: medications } : undefined,
       },
       include: {
         les_prescription_item: true,
@@ -21,6 +21,16 @@ export class PrescriptionService {
   async findAll() {
     return this.prisma.les_user_prescription.findMany({
       include: { les_prescription_item: true }
+    });
+  }
+
+  async findByPatient(patientId: string) {
+    return this.prisma.les_user_prescription.findMany({
+      where: { patient_id: patientId },
+      include: { 
+        les_prescription_item: true,
+        les_user_les_user_prescription_doctor_idToles_user: true
+      }
     });
   }
 
@@ -37,10 +47,20 @@ export class PrescriptionService {
 
   async update(id: string, data: any) {
     await this.findOne(id); // Check existence
+    const { medications, ...prescriptionData } = data;
+    
+    const updateData: any = { ...prescriptionData };
+    
+    if (medications) {
+      updateData.les_prescription_item = {
+        deleteMany: {},
+        create: medications
+      };
+    }
     
     return this.prisma.les_user_prescription.update({
       where: { id },
-      data,
+      data: updateData,
       include: { les_prescription_item: true }
     });
   }

@@ -3,16 +3,14 @@
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Loader } from '@/components/ui/Loader';
 import { Modal } from '@/components/ui/Modal';
-import { createPrescription, getPatientPrescriptions, Prescription } from '@/modules/les/api/prescriptions.api';
+import { createPrescription, updatePrescription, getPatientPrescriptions, Prescription } from '@/modules/les/api/prescriptions.api';
 import { getDoctors } from '@/modules/les/api/specialists.api';
-import { PrescriptionCard } from '@/modules/les/prescriptions/components/PrescriptionCard';
 import { MedicationCalendar } from '@/modules/les/prescriptions/components/MedicationCalendar';
+import { PrescriptionCard } from '@/modules/les/prescriptions/components/PrescriptionCard';
 import { useUser } from '@/providers/userProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
-    Bell, CalendarDays, Check,
-    Clock3,
-    FileText, MoreVertical, Pill, Plus
+    Plus
 } from "lucide-react";
 import React, { useState } from "react";
 
@@ -22,6 +20,7 @@ export default function Page() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('Activas');
+    const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         doctor_id: '',
         date: '',
@@ -46,21 +45,61 @@ export default function Page() {
         mutationFn: createPrescription,
         onSuccess: () => {
             refetch();
-            setIsModalOpen(false);
-            setFormData({ doctor_id: '', date: '', description: '' });
-            setMedications([{ medication_name: '', dosage: '', frequency: '', duration_days: 7, notes: '' }]);
+            closeModal();
         }
     });
+
+    const updateMutation = useMutation({
+        mutationFn: (data: any) => updatePrescription(editingId!, data),
+        onSuccess: () => {
+            refetch();
+            closeModal();
+        }
+    });
+
+    const openEditModal = (p: Prescription) => {
+        setEditingId(p.id);
+        setFormData({
+            doctor_id: p.doctor_id,
+            date: p.prescribed_date.split('T')[0],
+            description: p.description
+        });
+        if (p.les_prescription_item && p.les_prescription_item.length > 0) {
+            setMedications(p.les_prescription_item.map(item => ({
+                medication_name: item.medication_name,
+                dosage: item.dosage,
+                frequency: item.frequency,
+                duration_days: item.duration_days || 7,
+                notes: item.notes || ''
+            })));
+        } else {
+            setMedications([{ medication_name: '', dosage: '', frequency: '', duration_days: 7, notes: '' }]);
+        }
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setEditingId(null);
+        setFormData({ doctor_id: '', date: '', description: '' });
+        setMedications([{ medication_name: '', dosage: '', frequency: '', duration_days: 7, notes: '' }]);
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const prescribed_date = new Date(formData.date).toISOString();
-        createMutation.mutate({
+        const payload = {
             doctor_id: formData.doctor_id,
             prescribed_date,
             description: formData.description,
             medications: medications.filter(m => m.medication_name)
-        });
+        };
+        
+        if (editingId) {
+            updateMutation.mutate(payload);
+        } else {
+            createMutation.mutate(payload);
+        }
     };
 
     const addMedication = () => {
@@ -78,7 +117,7 @@ export default function Page() {
                     </div>
 
                     <button
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => { closeModal(); setIsModalOpen(true); }}
                         type="button"
                         className="flex w-fit items-center gap-2 rounded-xl bg-[#69409A] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#583383] active:scale-95"
                     >
@@ -114,6 +153,7 @@ export default function Page() {
                                         <PrescriptionCard
                                             key={prescription.id}
                                             prescription={prescription}
+                                            onEdit={openEditModal}
                                         />
                                     ))
                                 ) : (
@@ -128,39 +168,11 @@ export default function Page() {
                     </section>
 
                     {/* SIDEBAR */}
-                    <aside className="space-y-5">
-                        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                            <h2 className="text-sm font-bold text-[#69409A]">Resumen de tratamientos</h2>
-                            <div className="mt-4 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                                            <Check size={16} />
-                                        </div>
-                                        <span className="text-xs text-gray-600">Prescripciones totales</span>
-                                    </div>
-                                    <span className="text-sm font-bold text-gray-900">{prescriptions?.length || 0}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Reminders Alert */}
-                        <div className="rounded-2xl bg-orange-50 p-5">
-                            <div className="flex items-start gap-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-orange-500">
-                                    <Clock3 size={19} />
-                                </div>
-                                <div>
-                                    <h2 className="text-sm font-bold text-orange-600">Configura tus alarmas</h2>
-                                    <p className="mt-2 text-xs leading-5 text-orange-700">Mantén un seguimiento de tus medicamentos configurando las alarmas.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+                    
                 </div>
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Agregar prescripción">
+            <Modal isOpen={isModalOpen} onClose={closeModal} title={editingId ? "Editar prescripción" : "Agregar prescripción"}>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -212,8 +224,8 @@ export default function Page() {
                         </div>
                     </div>
 
-                    <button disabled={createMutation.isPending} type="submit" className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition mt-2">
-                        {createMutation.isPending ? 'Guardando...' : 'Guardar prescripción'}
+                    <button disabled={createMutation.isPending || updateMutation.isPending} type="submit" className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition mt-2">
+                        {createMutation.isPending || updateMutation.isPending ? 'Guardando...' : 'Guardar prescripción'}
                     </button>
                 </form>
             </Modal>

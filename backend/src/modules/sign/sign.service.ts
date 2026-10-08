@@ -89,4 +89,26 @@ export class SignService {
             throw new NotFoundException(`Sign with ID ${updateSignDto.id} not found`);
         }
     }
+
+    async getTestResults(userId: string) {
+        return this.prismaService.les_user_test_result.findMany({
+            where: { patient_id: userId },
+            orderBy: { test_date: 'desc' }
+        });
+    }
+
+    async createTestResult(userId: string, data: any) {
+        return this.prismaService.les_user_test_result.create({
+            data: {
+                ...data,
+                patient_id: userId
+            }
+        });
+    }
+
+    async deleteTestResult(id: string) {
+        return this.prismaService.les_user_test_result.delete({
+            where: { id }
+        });
+    }
 }

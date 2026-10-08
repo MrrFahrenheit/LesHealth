@@ -1,12 +1,34 @@
-import { Bell, CalendarDays, FileText, MoreVertical, Pill } from "lucide-react";
-import { Prescription } from "../../api/prescriptions.api";
+import { Bell, CalendarDays, FileText, MoreVertical, Pill, Trash, Edit } from "lucide-react";
+import { Prescription, deletePrescription } from "../../api/prescriptions.api";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-export function PrescriptionCard({ prescription }: { prescription: Prescription }) {
+export function PrescriptionCard({ prescription, onEdit }: { prescription: Prescription; onEdit?: (p: Prescription) => void }) {
+    const queryClient = useQueryClient();
     const d = new Date(prescription.prescribed_date);
     const dateStr = d.toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const deleteMutation = useMutation({
+        mutationFn: () => deletePrescription(prescription.id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['prescriptions'] });
+            toast.success("Prescripción eliminada");
+        },
+        onError: () => {
+            toast.error("Error al eliminar la prescripción");
+        }
+    });
+
+    const handleDelete = () => {
+        if (confirm("¿Estás seguro de que deseas eliminar esta prescripción?")) {
+            deleteMutation.mutate();
+        }
+    };
 
     return (
-        <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+        <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md relative">
             <div className="flex flex-col gap-5">
                 <div className="flex items-start justify-between gap-4">
                     <div className="flex min-w-0 items-center gap-4">
@@ -38,9 +60,21 @@ export function PrescriptionCard({ prescription }: { prescription: Prescription 
                         </div>
                     </div>
 
-                    <button type="button" className="shrink-0 rounded-lg p-2 text-gray-400 transition hover:bg-gray-50 hover:text-gray-700">
-                        <MoreVertical size={18} />
-                    </button>
+                    <div className="relative">
+                        <button onClick={() => setMenuOpen(!menuOpen)} type="button" className="shrink-0 rounded-lg p-2 text-gray-400 transition hover:bg-gray-50 hover:text-gray-700">
+                            <MoreVertical size={18} />
+                        </button>
+                        {menuOpen && (
+                            <div className="absolute right-0 top-10 w-32 rounded-lg bg-white shadow-lg border border-gray-100 z-10 flex flex-col p-1">
+                                <button onClick={() => { setMenuOpen(false); onEdit?.(prescription); }} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md text-left">
+                                    <Edit size={14} /> Editar
+                                </button>
+                                <button onClick={() => { setMenuOpen(false); handleDelete(); }} className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md text-left">
+                                    <Trash size={14} /> Eliminar
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="rounded-xl bg-[#F8F5FC] p-4 flex flex-col gap-3">

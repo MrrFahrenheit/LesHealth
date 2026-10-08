@@ -52,6 +52,7 @@ model les_user {
   les_user_sign                                                    les_user_sign[]
   les_user_education_progress                                      les_user_education_progress[]
   les_user_module_progress                                         les_user_module_progress[]
+  les_user_test_result                                             les_user_test_result[]
 }
 
 model les_user_medical_info {
@@ -118,6 +119,18 @@ model les_user_sign {
   value      Decimal   @db.Decimal(8, 2)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   les_user   les_user  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model les_user_test_result {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patient_id   String    @db.Uuid
+  type         String    @db.VarChar(100) // Hemoglobina, Colesterol total, Triglicéridos, etc.
+  value        String    @db.VarChar(100) // 14.2, 178, Normal, etc.
+  unit         String?   @db.VarChar(50)  // g/dL, mg/dL, etc.
+  status_badge String?   @db.VarChar(50)  // Normal, Sin alteraciones, Alto, etc.
+  test_date    DateTime? @default(now()) @db.Timestamptz(6)
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  les_user     les_user  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model les_sesion {

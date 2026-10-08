@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { addComment, createPost, deleteComment, deletePost, getComments, getGroups, getPosts, toggleLikePost, updatePost } from "@/modules/les/api/community.api";
 import { useUser } from "@/providers/userProvider";
@@ -74,7 +74,7 @@ export default function Page() {
             await createPostMutation.mutateAsync({ content: composerText, image_url: uploadedUrl });
         } catch (error) {
             console.error("Error al publicar:", error);
-            import("sonner").then(({toast}) => toast.error(error?.response?.data?.message || "Hubo un error al publicar"));
+            import("sonner").then(({toast}) => toast.error((error as any)?.response?.data?.message || "Hubo un error al publicar"));
         } finally {
             setIsUploading(false);
         }

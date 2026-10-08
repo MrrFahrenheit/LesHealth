@@ -11,3 +11,27 @@ export const createSign = async (data: CreateSignData) => {
     return response.data;
 };
 
+
+export type TestResult = {
+    id: string;
+    test_name: string;
+    value: string;
+    unit: string | null;
+    status: string | null;
+    date: string;
+};
+
+export const getTestResults = async (): Promise<TestResult[]> => {
+    const { data } = await apiClient.get('/sign/test-results');
+    return data;
+};
+
+export const createTestResult = async (testData: Omit<TestResult, 'id'>) => {
+    const { data } = await apiClient.post('/sign/test-results', testData);
+    return data;
+};
+
+export const deleteTestResult = async (id: string) => {
+    const { data } = await apiClient.delete(`/sign/test-results/${id}`);
+    return data;
+};
