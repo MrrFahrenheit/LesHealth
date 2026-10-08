@@ -1,7 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CommunityService } from './community.service';
+import { SesionGuard } from 'src/common/guards/sesion.guard';
+import { CurrentUser } from 'src/common/decorators/current-user-decorator';
+import { LesUserResponseDto } from 'src/common/dto/les-user-dto';
 
 @Controller('community')
+@UseGuards(SesionGuard)
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
@@ -32,19 +46,28 @@ export class CommunityController {
   }
 
   @Post('groups/:id/join')
-  joinGroup(@Param('id') groupId: string, @Body('user_id') userId: string) {
-    return this.communityService.joinGroup(groupId, userId);
+  joinGroup(
+    @Param('id') groupId: string,
+    @CurrentUser() user: LesUserResponseDto,
+  ) {
+    return this.communityService.joinGroup(groupId, user.id);
   }
 
   @Post('groups/:id/leave')
-  leaveGroup(@Param('id') groupId: string, @Body('user_id') userId: string) {
-    return this.communityService.leaveGroup(groupId, userId);
+  leaveGroup(
+    @Param('id') groupId: string,
+    @CurrentUser() user: LesUserResponseDto,
+  ) {
+    return this.communityService.leaveGroup(groupId, user.id);
   }
 
   // Posts
   @Post('posts')
-  createPost(@Body() createPostDto: any) {
-    return this.communityService.createPost(createPostDto);
+  createPost(
+    @CurrentUser() user: LesUserResponseDto,
+    @Body() createPostDto: any,
+  ) {
+    return this.communityService.createPost(createPostDto, user.id);
   }
 
   @Get('posts')
@@ -69,8 +92,12 @@ export class CommunityController {
 
   // Comments
   @Post('posts/:id/comments')
-  addComment(@Param('id') postId: string, @Body() addCommentDto: any) {
-    return this.communityService.addComment(postId, addCommentDto);
+  addComment(
+    @Param('id') postId: string,
+    @CurrentUser() user: LesUserResponseDto,
+    @Body() addCommentDto: any,
+  ) {
+    return this.communityService.addComment(postId, user.id, addCommentDto);
   }
 
   @Delete('comments/:id')
@@ -80,12 +107,18 @@ export class CommunityController {
 
   // Likes
   @Post('posts/:id/like')
-  likePost(@Param('id') postId: string, @Body('user_id') userId: string) {
-    return this.communityService.likePost(postId, userId);
+  likePost(
+    @Param('id') postId: string,
+    @CurrentUser() user: LesUserResponseDto,
+  ) {
+    return this.communityService.likePost(postId, user.id);
   }
 
   @Post('posts/:id/unlike')
-  unlikePost(@Param('id') postId: string, @Body('user_id') userId: string) {
-    return this.communityService.unlikePost(postId, userId);
+  unlikePost(
+    @Param('id') postId: string,
+    @CurrentUser() user: LesUserResponseDto,
+  ) {
+    return this.communityService.unlikePost(postId, user.id);
   }
 }
