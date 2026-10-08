@@ -95,6 +95,17 @@ export class CommunityService {
   }
 
   // Comments
+  async getComments(postId: string) {
+    await this.findPost(postId);
+    return this.prisma.les_post_comment.findMany({
+      where: { post_id: postId },
+      orderBy: { created_at: 'asc' },
+      include: {
+        les_user: { select: { id: true, full_name: true, avatar_url: true } }
+      }
+    });
+  }
+
   async addComment(postId: string, authorId: string, data: any) {
     await this.findPost(postId);
     return this.prisma.les_post_comment.create({
@@ -113,6 +124,15 @@ export class CommunityService {
   // Likes
   async likePost(postId: string, userId: string) {
     await this.findPost(postId);
+    
+    const existingLike = await this.prisma.les_post_like.findUnique({
+      where: { post_id_user_id: { post_id: postId, user_id: userId } },
+    });
+
+    if (existingLike) {
+      return this.prisma.les_post_like.delete({ where: { id: existingLike.id } });
+    }
+
     return this.prisma.les_post_like.create({
       data: { post_id: postId, user_id: userId },
     });

@@ -91,6 +91,11 @@ export class CommunityController {
   }
 
   // Comments
+  @Get('posts/:id/comments')
+  getComments(@Param('id') postId: string) {
+    return this.communityService.getComments(postId);
+  }
+
   @Post('posts/:id/comments')
   addComment(
     @Param('id') postId: string,
