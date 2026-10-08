@@ -1,220 +1,122 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { PrismaService } from 'src/core/database/prisma.service';
-import { NotificationService } from '../notification/notification.service';
-import { ModerationService } from '../moderation/moderation.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class CommunityService {
-  constructor(
-    private prisma: PrismaService, 
-    private notificationService: NotificationService,
-    private moderationService: ModerationService
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  // ----------------- POSTS -----------------
-  async createPost(userId: string, data: any) {
-    if (data.content) {
-      await this.moderationService.validateTextOrThrow(data.content);
-    }
-    if (data.image_url) {
-      await this.moderationService.validateImageUrlOrThrow(data.image_url);
-    }
+  // Groups
+  async createGroup(data: any) {
+    return this.prisma.les_community_group.create({ data });
+  }
 
-    return this.prisma.les_post.create({
-      data: {
-        content: data.content,
-        image_url: data.image_url,
-        category: data.category || 'general',
-        tags: data.tags || [],
-        author_id: userId,
-      },
-      include: {
-        les_user: {
-          select: { full_name: true, role: true, avatar_url: true },
-        },
-      },
+  async findAllGroups() {
+    return this.prisma.les_community_group.findMany();
+  }
+
+  async findGroup(id: string) {
+    const group = await this.prisma.les_community_group.findUnique({
+      where: { id },
+      include: { les_community_group_member: true }
+    });
+    if (!group) throw new NotFoundException('Group not found');
+    return group;
+  }
+
+  async updateGroup(id: string, data: any) {
+    await this.findGroup(id);
+    return this.prisma.les_community_group.update({ where: { id }, data });
+  }
+
+  async removeGroup(id: string) {
+    await this.findGroup(id);
+    return this.prisma.les_community_group.delete({ where: { id } });
+  }
+
+  // Group Members
+  async joinGroup(groupId: string, userId: string) {
+    await this.findGroup(groupId);
+    return this.prisma.les_community_group_member.create({
+      data: { group_id: groupId, user_id: userId }
     });
   }
 
-  async getPosts(userId: string) {
-    const posts = await this.prisma.les_post.findMany({
+  async leaveGroup(groupId: string, userId: string) {
+    const member = await this.prisma.les_community_group_member.findUnique({
+      where: { group_id_user_id: { group_id: groupId, user_id: userId } }
+    });
+    if (!member) throw new NotFoundException('Member not found in group');
+    return this.prisma.les_community_group_member.delete({
+      where: { id: member.id }
+    });
+  }
+
+  // Posts
+  async createPost(data: any) {
+    return this.prisma.les_post.create({ data });
+  }
+
+  async findAllPosts(groupId?: string) {
+    const where = groupId ? { group_id: groupId } : {};
+    return this.prisma.les_post.findMany({
+      where,
       orderBy: { created_at: 'desc' },
       include: {
-        les_user: {
-          select: { id: true, full_name: true, role: true, avatar_url: true },
-        },
-        _count: {
-          select: { les_post_like: true, les_post_comment: true },
-        },
-        les_post_like: {
-          where: { user_id: userId },
-          select: { id: true },
-        },
-      },
-    });
-
-    return posts.map(post => ({
-      ...post,
-      isLiked: post.les_post_like.length > 0,
-      les_post_like: undefined, // No expongas los detalles de likes a nivel de cliente si no es necesario
-    }));
-  }
-
-  async updatePost(userId: string, postId: string, data: any) {
-    const post = await this.prisma.les_post.findUnique({ where: { id: postId } });
-    if (!post || post.author_id !== userId) throw new Error("No autorizado o no encontrado");
-
-    if (data.content) {
-      await this.moderationService.validateTextOrThrow(data.content);
-    }
-    if (data.image_url) {
-      await this.moderationService.validateImageUrlOrThrow(data.image_url);
-    }
-
-    return this.prisma.les_post.update({
-      where: { id: postId },
-      data: {
-        content: data.content,
-        image_url: data.image_url,
-        category: data.category,
-        tags: data.tags,
+        les_user: { select: { id: true, full_name: true, avatar_url: true } },
+        _count: { select: { les_post_comment: true, les_post_like: true } }
       }
     });
   }
 
-  async deletePost(userId: string, postId: string) {
-    const post = await this.prisma.les_post.findUnique({ where: { id: postId } });
-    if (!post || post.author_id !== userId) throw new Error("No autorizado o no encontrado");
-
-    return this.prisma.les_post.delete({ where: { id: postId } });
-  }
-
-  // ----------------- COMMENTS -----------------
-  async getComments(postId: string) {
-    return this.prisma.les_post_comment.findMany({
-      where: { post_id: postId },
-      orderBy: { created_at: 'asc' },
+  async findPost(id: string) {
+    const post = await this.prisma.les_post.findUnique({
+      where: { id },
       include: {
-        les_user: {
-          select: { id: true, full_name: true, avatar_url: true }
-        }
+        les_post_comment: { include: { les_user: { select: { id: true, full_name: true } } } },
+        les_post_like: true,
       }
+    });
+    if (!post) throw new NotFoundException('Post not found');
+    return post;
+  }
+
+  async updatePost(id: string, data: any) {
+    await this.findPost(id);
+    return this.prisma.les_post.update({ where: { id }, data });
+  }
+
+  async removePost(id: string) {
+    await this.findPost(id);
+    return this.prisma.les_post.delete({ where: { id } });
+  }
+
+  // Comments
+  async addComment(postId: string, data: any) {
+    await this.findPost(postId);
+    return this.prisma.les_post_comment.create({
+      data: { ...data, post_id: postId }
     });
   }
 
-  async addComment(userId: string, postId: string, content: string) {
-    if (content) {
-      await this.moderationService.validateTextOrThrow(content);
-    }
-
-    const comment = await this.prisma.les_post_comment.create({
-      data: {
-        post_id: postId,
-        author_id: userId,
-        content: content,
-      },
-      include: {
-        les_user: { select: { full_name: true, avatar_url: true } }
-      }
-    });
-
-    const post = await this.prisma.les_post.findUnique({ where: { id: postId }, select: { author_id: true } });
-    
-    // Notificación al dueño del post
-    if (post && post.author_id !== userId) {
-      await this.notificationService.createNotification(
-        post.author_id,
-        'Nuevo Comentario',
-        `${comment.les_user.full_name} comentó en tu publicación.`,
-        'COMMENT',
-        `/les/community`
-      );
-    }
-
-    // Buscar menciones usando regex simple: @Nombre
-    const mentions = content.match(/@(\w+)/g);
-    if (mentions) {
-      for (const mention of mentions) {
-        // En un caso real buscarías el user_name exacto, aquí buscamos por full_name parecido o ignoramos si no hay username
-        // Asumiendo que el tag usa el primer nombre
-        const nameQuery = mention.substring(1); 
-        const taggedUser = await this.prisma.les_user.findFirst({
-          where: { full_name: { contains: nameQuery, mode: 'insensitive' } },
-          select: { id: true }
-        });
-
-        if (taggedUser && taggedUser.id !== userId) {
-          await this.notificationService.createNotification(
-            taggedUser.id,
-            'Te han mencionado',
-            `${comment.les_user.full_name} te mencionó en un comentario.`,
-            'MENTION',
-            `/les/community`
-          );
-        }
-      }
-    }
-
-    return comment;
-  }
-
-  async deleteComment(userId: string, commentId: string) {
+  async removeComment(commentId: string) {
     const comment = await this.prisma.les_post_comment.findUnique({ where: { id: commentId } });
-    if (!comment || comment.author_id !== userId) throw new Error("No autorizado o no encontrado");
-
+    if (!comment) throw new NotFoundException('Comment not found');
     return this.prisma.les_post_comment.delete({ where: { id: commentId } });
   }
 
-  // ----------------- GROUPS -----------------
-  async getGroups() {
-    return this.prisma.les_community_group.findMany({
-      include: {
-        _count: {
-          select: { les_community_group_member: true },
-        },
-      },
+  // Likes
+  async likePost(postId: string, userId: string) {
+    await this.findPost(postId);
+    return this.prisma.les_post_like.create({
+      data: { post_id: postId, user_id: userId }
     });
   }
 
-  // ----------------- LIKES -----------------
-  async toggleLike(userId: string, postId: string) {
-    const existing = await this.prisma.les_post_like.findUnique({
-      where: {
-        post_id_user_id: { post_id: postId, user_id: userId },
-      },
+  async unlikePost(postId: string, userId: string) {
+    const like = await this.prisma.les_post_like.findUnique({
+      where: { post_id_user_id: { post_id: postId, user_id: userId } }
     });
-
-    if (existing) {
-      await this.prisma.les_post_like.delete({
-        where: { id: existing.id },
-      });
-      return { liked: false };
-    }
-
-    await this.prisma.les_post_like.create({
-      data: { post_id: postId, user_id: userId },
-    });
-
-    // Enviar notificación al autor del post
-    const post = await this.prisma.les_post.findUnique({
-      where: { id: postId },
-      select: { author_id: true }
-    });
-    const user = await this.prisma.les_user.findUnique({
-      where: { id: userId },
-      select: { full_name: true }
-    });
-
-    if (post && user && post.author_id !== userId) {
-      await this.notificationService.createNotification(
-        post.author_id,
-        'Nuevo Like',
-        `${user.full_name} le dio like a tu publicación.`,
-        'LIKE',
-        `/les/community`
-      );
-    }
-
-    return { liked: true };
+    if (!like) throw new NotFoundException('Like not found');
+    return this.prisma.les_post_like.delete({ where: { id: like.id } });
   }
 }

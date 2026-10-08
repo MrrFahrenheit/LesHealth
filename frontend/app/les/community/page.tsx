@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { createPost, getGroups, getPosts, toggleLikePost, deletePost, getComments, addComment, deleteComment, updatePost } from "@/modules/les/api/community.api";
+import { addComment, createPost, deleteComment, deletePost, getComments, getGroups, getPosts, toggleLikePost, updatePost } from "@/modules/les/api/community.api";
+import { useUser } from "@/providers/userProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowRight,
@@ -11,13 +12,11 @@ import {
     Image as ImageIcon,
     MessageCircle,
     MoreHorizontal,
-    Plus,
     Search,
     ShieldCheck,
     Users
 } from "lucide-react";
 import { useState } from "react";
-import { useUser } from "@/providers/userProvider";
 
 const trendingTopics: [string, number][] = [
     ["Fatiga y cansancio", 38],
@@ -366,13 +365,7 @@ export default function Page() {
                         </p>
                     </div>
 
-                    <button
-                        type="button"
-                        className="flex w-fit items-center gap-2 rounded-xl bg-[#69409A] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#583383] active:scale-95"
-                    >
-                        <Plus size={17} />
-                        Crear publicaciÃ³n
-                    </button>
+            
                 </div>
 
                 {/* Search */}

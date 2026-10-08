@@ -119,6 +119,7 @@ export class UserService {
 
   // 8. Enviar verificación de especialista
   async submitSpecialistVerification(userId: string, frontUrl: string, backUrl: string) {
+    await this.getUserProfile(userId);
     const request = await this.prismaService.les_verification_request.upsert({
       where: { user_id: userId },
       update: {
@@ -139,6 +140,7 @@ export class UserService {
 
   // 9. Aprobar especialista (Admin only - ideally protected by admin guard)
   async approveSpecialist(userId: string) {
+    await this.getUserProfile(userId);
     // 1. Marcar la solicitud como aprobada
     await this.prismaService.les_verification_request.updateMany({
       where: { user_id: userId, status: 'pending' },

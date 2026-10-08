@@ -1,25 +1,23 @@
 "use client";
 
+import PurpleZoneDecorations from '@/components/ui/PurpleZoneDecorations';
 import {
-    Home,
-    HeartPulse,
-    UserCheck,
     Calendar,
-    FileText,
-    Pill,
     GraduationCap,
-    Users,
-    LucideIcon,
-    SettingsIcon,
+    HeartPulse,
     HelpCircleIcon,
-    Menu, // Ícono para el botón de abrir en móvil
-    X     // Ícono para el botón de cerrar en móvil
+    Home,
+    Menu,
+    Pill,
+    SettingsIcon,
+    UserCheck,
+    Users, // Ícono para el botón de abrir en móvil
+    X // Ícono para el botón de cerrar en móvil
 } from "lucide-react";
-import PurpleZoneDecorations from '@/components/ui/PurpleZoneDecorations'
-import React, { useState } from 'react'
-import NegativeLesHealthLogo from "../../../../src/logos/negativo1_sin_fondo.svg";
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
+import NegativeLesHealthLogo from "../../../../src/logos/negativo1_sin_fondo.svg";
 import { NavBarItem } from '../../types/navBarItem';
 
 export const navBarInfo: Array<NavBarItem> = [
@@ -29,7 +27,7 @@ export const navBarInfo: Array<NavBarItem> = [
     { label: "Citas Médicas", icon: Calendar, url: "/les/medical-cites" },
     { label: "Prescripciones", icon: Pill, url: "/les/prescriptions" },
     { label: "Educación", icon: GraduationCap, url: "/les/education" },
-    { label: "Comunidad", icon: Users, url: "/les/comunity" },
+    { label: "Comunidad", icon: Users, url: "/les/community" },
 ];
 
 import { useUser } from '@/providers/userProvider';

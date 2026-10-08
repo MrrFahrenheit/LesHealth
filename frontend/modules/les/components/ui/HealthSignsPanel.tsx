@@ -246,7 +246,7 @@ export default function HealthSignsPanel() {
                     <h2 className="text-lg font-bold text-gray-900">{signSelected.type}</h2>
                 </div>
 
-                <div className="w-full flex flex-col sm:w-4/5 h-full sm:h-80 items-center mt-4">
+                <div className="w-full flex flex-col sm:w-4/5 min-h-[250px] sm:h-80 items-center mt-4">
 
                     {/* 4. MEJORA: Pasamos los datos filtrados en lugar de intentar acceder como objeto */}
                     {chartData.length <= 0 ? <div className="flex w-full justify-center p-4 text-sm text-gray-400">

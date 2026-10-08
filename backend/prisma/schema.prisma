@@ -21,18 +21,18 @@ model les_routine_event {
 }
 
 model les_user {
-  id                                                               String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email                                                            String                       @unique
+  id                                                               String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                                                            String                        @unique
   password_hash                                                    String
-  full_name                                                        String                       @db.VarChar(100)
-  role                                                             user_role?                   @default(patient)
-  specialty                                                        String?                      @db.VarChar(100)
-  license_number                                                   String?                      @db.VarChar(50)
-  created_at                                                       DateTime?                    @default(now()) @db.Timestamptz(6)
-  isemailverified                                                  Boolean                      @default(false)
+  full_name                                                        String                        @db.VarChar(100)
+  role                                                             user_role?                    @default(patient)
+  specialty                                                        String?                       @db.VarChar(100)
+  license_number                                                   String?                       @db.VarChar(50)
+  created_at                                                       DateTime?                     @default(now()) @db.Timestamptz(6)
+  isemailverified                                                  Boolean                       @default(false)
   verification_token                                               String?
-  verification_expires                                             DateTime?                    @db.Timestamptz(6)
-  is_verified_doctor                                               Boolean                      @default(false)
+  verification_expires                                             DateTime?                     @db.Timestamptz(6)
+  is_verified_doctor                                               Boolean                       @default(false)
   avatar_url                                                       String?
   les_verification_request                                         les_verification_request?
   les_community_group_member                                       les_community_group_member[]
@@ -44,12 +44,14 @@ model les_user {
   les_sesion                                                       les_sesion[]
   les_notification                                                 les_notification[]
   les_user_medical_info                                            les_user_medical_info?
-  les_user_prescription_les_user_prescription_doctor_idToles_user  les_user_prescription[]      @relation("les_user_prescription_doctor_idToles_user")
-  les_user_prescription_les_user_prescription_patient_idToles_user les_user_prescription[]      @relation("les_user_prescription_patient_idToles_user")
-  les_user_reservation_les_user_reservation_doctor_idToles_user    les_user_reservation[]       @relation("les_user_reservation_doctor_idToles_user")
-  les_user_reservation_les_user_reservation_patient_idToles_user   les_user_reservation[]       @relation("les_user_reservation_patient_idToles_user")
+  les_user_prescription_les_user_prescription_doctor_idToles_user  les_user_prescription[]       @relation("les_user_prescription_doctor_idToles_user")
+  les_user_prescription_les_user_prescription_patient_idToles_user les_user_prescription[]       @relation("les_user_prescription_patient_idToles_user")
+  les_user_reservation_les_user_reservation_doctor_idToles_user    les_user_reservation[]        @relation("les_user_reservation_doctor_idToles_user")
+  les_user_reservation_les_user_reservation_patient_idToles_user   les_user_reservation[]        @relation("les_user_reservation_patient_idToles_user")
   les_user_routine                                                 les_user_routine[]
   les_user_sign                                                    les_user_sign[]
+  les_user_education_progress                                      les_user_education_progress[]
+  les_user_module_progress                                         les_user_module_progress[]
 }
 
 model les_user_medical_info {
@@ -63,14 +65,14 @@ model les_user_medical_info {
 }
 
 model les_user_prescription {
-  id                                                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patient_id                                          String    @db.Uuid
-  doctor_id                                           String    @db.Uuid
+  id                                                  String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patient_id                                          String                  @db.Uuid
+  doctor_id                                           String                  @db.Uuid
   description                                         String
-  prescribed_date                                     DateTime? @default(dbgenerated("CURRENT_DATE")) @db.Date
-  created_at                                          DateTime? @default(now()) @db.Timestamptz(6)
-  les_user_les_user_prescription_doctor_idToles_user  les_user  @relation("les_user_prescription_doctor_idToles_user", fields: [doctor_id], references: [id], onUpdate: NoAction)
-  les_user_les_user_prescription_patient_idToles_user les_user  @relation("les_user_prescription_patient_idToles_user", fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  prescribed_date                                     DateTime?               @default(dbgenerated("CURRENT_DATE")) @db.Date
+  created_at                                          DateTime?               @default(now()) @db.Timestamptz(6)
+  les_user_les_user_prescription_doctor_idToles_user  les_user                @relation("les_user_prescription_doctor_idToles_user", fields: [doctor_id], references: [id], onUpdate: NoAction)
+  les_user_les_user_prescription_patient_idToles_user les_user                @relation("les_user_prescription_patient_idToles_user", fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   les_prescription_item                               les_prescription_item[]
 }
 
@@ -275,12 +277,75 @@ enum verification_status {
 }
 
 model les_verification_request {
-  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id            String              @unique @db.Uuid
-  license_front_url  String
-  license_back_url   String
-  status             verification_status @default(pending)
-  created_at         DateTime?           @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime?           @default(now()) @db.Timestamptz(6)
-  les_user           les_user            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id           String              @unique @db.Uuid
+  license_front_url String
+  license_back_url  String
+  status            verification_status @default(pending)
+  created_at        DateTime?           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?           @default(now()) @db.Timestamptz(6)
+  les_user          les_user            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model les_education_category {
+  id          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String                 @db.VarChar(120)
+  description String?
+  created_at  DateTime?              @default(now()) @db.Timestamptz(6)
+  les_course  les_education_course[]
+}
+
+model les_education_course {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category_id  String?   @db.Uuid
+  title        String    @db.VarChar(150)
+  description  String?
+  image_url    String?
+  is_published Boolean   @default(false)
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime? @default(now()) @db.Timestamptz(6)
+
+  les_category les_education_category?       @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  les_module   les_education_module[]
+  les_progress les_user_education_progress[]
+}
+
+model les_education_module {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  course_id   String    @db.Uuid
+  title       String    @db.VarChar(150)
+  content     String
+  video_url   String?
+  order_index Int       @default(0)
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+
+  les_course   les_education_course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  les_progress les_user_module_progress[]
+}
+
+model les_user_education_progress {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String    @db.Uuid
+  course_id    String    @db.Uuid
+  is_completed Boolean   @default(false)
+  completed_at DateTime? @db.Timestamptz(6)
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+
+  les_user   les_user             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  les_course les_education_course @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, course_id])
+}
+
+model les_user_module_progress {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String    @db.Uuid
+  module_id    String    @db.Uuid
+  is_completed Boolean   @default(false)
+  completed_at DateTime? @db.Timestamptz(6)
+
+  les_user   les_user             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  les_module les_education_module @relation(fields: [module_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, module_id])
 }

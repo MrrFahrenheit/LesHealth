@@ -1,9 +1,8 @@
-import { useUser } from '@/providers/userProvider'
-import { ArrowRight, Calendar } from 'lucide-react'
-import DoctorImage from '../../../../src/images/doctor.png';
-import React from 'react'
+import { useUser } from '@/providers/userProvider';
+import { ArrowRight, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import DoctorImage from '../../../../src/images/doctor.png';
 
 export default function AggendCite() {
 
@@ -11,7 +10,7 @@ export default function AggendCite() {
     const user = useUser();
 
     return (
-        <section className="rounded-3xl p-4 flex flex-col-reverse md:flex-row items-center justify-between relative overflow-hidden">
+        <section className="z-0 rounded-3xl p-4 flex flex-col-reverse md:flex-row items-center justify-between relative overflow-hidden">
                         <div className="z-10 flex flex-col items-start gap-4 max-w-lg">
                             <span className="text-xl font-medium text-gray-700 flex items-center gap-2">
                                 👋 ¡Hola, {user?.full_name}!

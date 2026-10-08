@@ -57,8 +57,38 @@ export default function UVIndex() {
 
     return (
         <div className="flex items-center gap-2">
+           <div className="sm:hidden flex flex-col leading-tight">
+             <span className="text-[10px] text-gray-500">
+                    Indice Uv
+                </span>
+                <span className="text-[10px] text-gray-500">
+                    {loadingUV ? (
+                        "Consultando..."
+                    ) : uvRisk ? (
+                        `${uvRisk.label}`
+                    ) : (
+                        "No disponible"
+                    )}
+                </span>
+                
+           </div>
             <div className="flex items-center justify-center w-9 h-9 rounded-full bg-yellow-50">
                 <Sun className="w-5 h-5 text-yellow-500" />
+                 <div className="sm:hidden">
+                    {loadingUV ? (
+                    <span className="text-xs text-gray-500">
+                        Consultando...
+                    </span>
+                ) : uvRisk ? (
+                    <span className="text-xs font-semibold text-gray-700">
+                        {uvRisk.uvIndex}
+                    </span>
+                ) : (
+                    <span className="text-xs text-gray-500">
+                        No disponible
+                    </span>
+                )}
+                 </div>
             </div>
 
             <div className="hidden lg:flex flex-col leading-tight">

@@ -14,9 +14,10 @@ import { ReservationModule } from './modules/reservation/reservation.module';
 import { CommunityModule } from './modules/community/community.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
+import { EducationModule } from './modules/education/education.module';
 
 @Module({
-  imports: [UserModule, SesionModule, AuthModule, PrismaModule, UvModule, SignModule, RoutineModule, RoutineEventModule, PrescriptionModule, ReservationModule, CommunityModule, UploadModule, ModerationModule],
+  imports: [UserModule, SesionModule, AuthModule, PrismaModule, UvModule, SignModule, RoutineModule, RoutineEventModule, PrescriptionModule, ReservationModule, CommunityModule, UploadModule, ModerationModule, EducationModule],
   controllers: [AppController],
   providers: [AppService],
 })

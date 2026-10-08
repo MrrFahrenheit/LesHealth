@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Bell } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { Bell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function NotificationBell() {
     const [notifications, setNotifications] = useState<any[]>([]);
@@ -66,7 +66,7 @@ export default function NotificationBell() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+                <div className="z-100 absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
                     <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                         <h3 className="font-bold text-gray-700">Notificaciones</h3>
                         {unreadCount > 0 && (

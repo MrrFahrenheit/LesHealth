@@ -1,9 +1,8 @@
 import { Heart, Star } from 'lucide-react';
-import React from 'react'
 
-export default function SpecialistCard({ name, specialty, rating, reviews, img }: { name: string, specialty: string, rating: string, reviews: string, img: string }) {
+export default function SpecialistCard({ name, specialty, rating, reviews, img, onClick = () => {} }: { name: string, specialty: string, rating: string, reviews: string, img: string, onClick: () => void }) {
     return (
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 relative cursor-pointer hover:shadow-md transition">
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 relative cursor-pointer hover:shadow-md transition" onClick={onClick}>
             <Heart className="w-5 h-5 text-gray-300 absolute top-4 right-4 hover:text-red-500 transition" />
             <div className="flex flex-col items-center text-center gap-2">
                 <img src={img} alt={name} className="w-16 h-16 rounded-full object-cover mb-2" />

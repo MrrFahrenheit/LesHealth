@@ -16,7 +16,7 @@ export default function Chart({data} : {data:Array<any>}) {
     return (
         // ResponsiveContainer tomará el 100% del padre. 
         // El tamaño se controla desde el contenedor en page.tsx
-        <ResponsiveContainer width="100%" height="60%">
+        <ResponsiveContainer width="100%" height="100%" minHeight={200}>
             <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis 
@@ -37,7 +37,7 @@ export default function Chart({data} : {data:Array<any>}) {
                         border: "1px solid #E5E7EB",
                         boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                     }}
-                    formatter={(value: any) => [`${value} mg/dL`, "Glucosa"]}
+                    formatter={(value: any) => [`${value}`, ""]}
                 />
                 <Line
                     type="monotone"

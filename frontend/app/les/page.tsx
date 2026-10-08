@@ -63,10 +63,14 @@ export default function page() {
                     <section>
                         <h2 className="text-xl font-bold text-gray-900 mb-4">Acciones rápidas</h2>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <QuickActionCard icon={<Calendar className="text-purple-600 w-6 h-6" />} title="Agendar cita" subtitle="Reserva con especialistas" bgColor="bg-purple-100/50" />
-                            <QuickActionCard icon={<FileText className="text-blue-600 w-6 h-6" />} title="Consultar resultados" subtitle="Revisa tus análisis" bgColor="bg-blue-100/50" />
-                            <QuickActionCard icon={<Activity className="text-green-600 w-6 h-6" />} title="Mis prescripciones" subtitle="Gestiona tus medicamentos" bgColor="bg-green-100/50" />
-                            <QuickActionCard icon={<MessageCircle className="text-yellow-600 w-6 h-6" />} title="Chat con especialista" subtitle="Consulta en línea" bgColor="bg-yellow-100/50" />
+                            <QuickActionCard icon={<Calendar className="text-purple-600 w-6 h-6" />} title="Agendar cita" subtitle="Reserva con especialistas" bgColor="bg-purple-100/50"
+                            onClick={() => window.location.href = '/les/medical-cites'} />
+                            <QuickActionCard icon={<FileText className="text-blue-600 w-6 h-6" />} title="Consultar resultados" subtitle="Revisa tus análisis" bgColor="bg-blue-100/50"
+                            onClick={() => window.location.href = '/les/my-health'} />
+                            <QuickActionCard icon={<Activity className="text-green-600 w-6 h-6" />} title="Mis prescripciones" subtitle="Gestiona tus medicamentos" bgColor="bg-green-100/50"
+                            onClick={() => window.location.href = '/les/prescriptions'} />
+                            <QuickActionCard icon={<MessageCircle className="text-yellow-600 w-6 h-6" />} title="Chat con especialista" subtitle="Consulta en línea" bgColor="bg-yellow-100/50"
+                            onClick={() => window.location.href = '/les/chat'} />
                         </div>
                     </section>
 
@@ -124,7 +128,8 @@ export default function page() {
                                 <Loader text="Cargando especialistas..." />
                             ) : doctors && doctors.length > 0 ? (
                                 doctors.slice(0, 3).map((doc, idx) => (
-                                    <SpecialistCard key={doc.id} name={doc.full_name} specialty={doc.les_doctor_profile?.specialty || 'General'} rating="4.9" reviews="120" img={`https://i.pravatar.cc/150?img=${idx + 10}`} />
+                                    <SpecialistCard key={doc.id} name={doc.full_name} specialty={doc.les_doctor_profile?.specialty || 'General'} rating="4.9" reviews="120" img={`https://i.pravatar.cc/150?img=${idx + 10}`} 
+                                    onClick={() => window.location.href = `/les/user/${doc.id}`} />
                                 ))
                             ) : (
                                 <EmptyState title="Sin especialistas" description="No hay especialistas disponibles por el momento." />
@@ -139,7 +144,9 @@ export default function page() {
                     <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-lg font-bold text-gray-900">Resumen de tu salud</h2>
-                            <button className="text-gray-500 text-xs font-semibold flex items-center hover:text-[#5C328E]">
+                            <button className="text-gray-500 text-xs font-semibold flex items-center hover:text-[#5C328E]"
+                            onClick={() => window.location.href = '/les/my-health'}
+                            >
                                 Ver más <ArrowRight className="w-3 h-3 ml-1" />
                             </button>
                         </div>
@@ -171,7 +178,9 @@ export default function page() {
                     <div className="bg-transparent mt-2">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold text-gray-900">Educación y bienestar</h2>
-                            <button className="text-gray-500 text-xs font-semibold flex items-center hover:text-[#5C328E]">
+                            <button className="text-gray-500 text-xs font-semibold flex items-center hover:text-[#5C328E]"
+                            onClick={() => window.location.href = '/les/education'}
+                            >
                                 Ver más <ArrowRight className="w-3 h-3 ml-1" />
                             </button>
                         </div>

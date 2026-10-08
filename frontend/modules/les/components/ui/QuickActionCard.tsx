@@ -1,8 +1,8 @@
 import { ArrowRight } from "lucide-react";
 
-export default function QuickActionCard({ icon, title, subtitle, bgColor }: { icon: React.ReactNode, title: string, subtitle: string, bgColor: string }) {
+export default function QuickActionCard({ icon, title, subtitle, bgColor, onClick = () => {}}: { icon: React.ReactNode, title: string, subtitle: string, bgColor: string, onClick?: () => void }) {
     return (
-        <div className={`${bgColor} rounded-2xl p-4 flex flex-col items-start gap-4 cursor-pointer hover:opacity-80 transition group relative overflow-hidden`}>
+        <div className={`${bgColor} rounded-2xl p-4 flex flex-col items-start gap-4 cursor-pointer hover:opacity-80 transition group relative overflow-hidden`} onClick={onClick}>
             <div className="bg-white p-2 rounded-xl shadow-sm">
                 {icon}
             </div>
