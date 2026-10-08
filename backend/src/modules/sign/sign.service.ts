@@ -111,4 +111,33 @@ export class SignService {
             where: { id }
         });
     }
+
+    async getAIInsights(userId: string) {
+        try {
+            const signs = await this.getAllUserSigns(userId);
+            const testResults = await this.getTestResults(userId);
+            
+            const { GoogleGenAI } = await import('@google/genai');
+            const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'dummy' });
+            
+            const prompt = `Eres un asistente médico inteligente para la plataforma LesHealth. Analiza los siguientes signos vitales y resultados de laboratorio del usuario y proporciona un breve comentario, consejo o advertencia amistosa en español (máximo 2 párrafos).
+            Signos Vitales: ${JSON.stringify(signs)}
+            Resultados de pruebas: ${JSON.stringify(testResults)}
+            
+            Instrucciones críticas:
+            1. Si los datos están completamente vacíos (por ejemplo '{}' y '[]') o son muy pocos, NO generes falsas alarmas, NO saques conclusiones médicas precipitadas ni hables de tendencias que no existen. En su lugar, dale una cálida bienvenida, explícale la importancia de llevar un registro continuo para poder brindarle un buen análisis, y motívalo a que empiece a registrar sus signos y resultados médicos.
+            2. Si hay datos suficientes, responde de forma clara y amable al paciente. No des diagnósticos definitivos, pero sugiere consultar a un médico si notas algo anormal de forma consistente.
+            3. Utiliza formato markdown para tu respuesta.`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+            });
+
+            return { insight: response.text };
+        } catch (error) {
+            console.error('Error getting AI insight:', error);
+            return { insight: "En este momento no pudimos procesar tus resultados para generar un análisis. Por favor, inténtalo de nuevo más tarde." };
+        }
+    }
 }

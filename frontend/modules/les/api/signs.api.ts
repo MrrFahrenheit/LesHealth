@@ -35,3 +35,8 @@ export const deleteTestResult = async (id: string) => {
     const { data } = await apiClient.delete(`/sign/test-results/${id}`);
     return data;
 };
+
+export const getAIInsights = async () => {
+    const { data } = await apiClient.get('/sign/ai-insights');
+    return data;
+};

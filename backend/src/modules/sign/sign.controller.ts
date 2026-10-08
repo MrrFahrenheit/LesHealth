@@ -62,6 +62,11 @@ export class SignController {
         return await this.signService.getTestResults(user.id);
     }
 
+    @Get('ai-insights')
+    async getAIInsights(@CurrentUser() user: LesUserResponseDto) {
+        return await this.signService.getAIInsights(user.id);
+    }
+
     @Post('test-results')
     async createTestResult(@CurrentUser() user: LesUserResponseDto, @Body() data: any) {
         return await this.signService.createTestResult(user.id, data);

@@ -2,6 +2,7 @@ import Chart from "@/modules/les/components/ui/Chart";
 import HealthSignsPanel from "@/modules/les/components/ui/HealthSignsPanel";
 import HealthStatItem from "@/modules/les/components/ui/HealthStatItem";
 import TestResultsPanel from "@/modules/les/components/ui/TestResultsPanel";
+import AIHealthInsights from "@/modules/les/components/ui/AIHealthInsights";
 import {
     Heart,
     Moon,
@@ -23,7 +24,7 @@ export default function Page() {
             </div>
 
             {/* Grid Superior: 1 columna en móvil, 2 columnas en pantallas grandes (xl) */}
-           
+            <AIHealthInsights />
                 {/* Columna Izquierda: Signos vitales */}
                 <HealthSignsPanel />
             {/* Análisis y resultados */}
