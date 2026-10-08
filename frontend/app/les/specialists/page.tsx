@@ -16,7 +16,10 @@ import {
     ShieldCheck,
     Star,
     UsersRound,
-    Video
+    Video,
+    Apple,
+    Brain,
+    Stethoscope
 } from "lucide-react";
 import Link from 'next/link';
 import { useMemo, useState } from "react";
@@ -25,9 +28,9 @@ const CATEGORIES = [
     { name: "Todos", icon: UsersRound },
     { name: "Reumatología", icon: ShieldCheck },
     { name: "Cardiología", icon: Heart },
-    { name: "Nutrición", icon: "🍎" },
-    { name: "Salud Mental", icon: "🧠" },
-    { name: "Dermatología", icon: "🩺" },
+    { name: "Nutrición", icon: Apple },
+    { name: "Salud Mental", icon: Brain },
+    { name: "Dermatología", icon: Stethoscope },
 ];
 
 

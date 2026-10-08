@@ -1,5 +1,5 @@
 import { useUser } from '@/providers/userProvider';
-import { ArrowRight, Calendar } from 'lucide-react';
+import { ArrowRight, Calendar, Hand } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import DoctorImage from '../../../../src/images/doctor.png';
@@ -13,7 +13,7 @@ export default function AggendCite() {
         <section className="z-0 rounded-3xl p-4 flex flex-col-reverse md:flex-row items-center justify-between relative overflow-hidden">
                         <div className="z-10 flex flex-col items-start gap-4 max-w-lg">
                             <span className="text-xl font-medium text-gray-700 flex items-center gap-2">
-                                👋 ¡Hola, {user?.full_name}!
+                                <Hand className="w-5 h-5 text-yellow-500" /> ¡Hola, {user?.full_name}!
                             </span>
                             <h1 className="text-4xl lg:text-3xl font-bold text-gray-900 leading-tight">
                                 Tu bienestar <br /> está en buenas manos

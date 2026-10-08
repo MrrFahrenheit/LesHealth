@@ -19,8 +19,9 @@ export default function Page() {
     return (
         <div className="flex-1 overflow-y-auto bg-[#F8F9FC] p-4 lg:p-8">
             {/* Header */}
-            <div className="w-full flex justify-center text-lg font-semibold text-black mb-6">
-                <span>Tu salud, nuestra prioridad 💜</span>
+            <div className="w-full flex justify-center items-center text-lg font-semibold text-black mb-6">
+                <span>Tu salud, nuestra prioridad</span>
+                <Heart size={20} className="inline text-[#69409A] fill-current ml-2" />
             </div>
 
             {/* Grid Superior: 1 columna en móvil, 2 columnas en pantallas grandes (xl) */}

@@ -192,7 +192,7 @@ export default async function Page() {
                                 </div>
 
                                 <div className="absolute bottom-0 right-12 text-[150px] leading-none opacity-10">
-                                    📚
+                                    <BookOpen size={150} />
                                 </div>
                             </div>
 
