@@ -123,7 +123,7 @@ export default function Page() {
                         {/* Categories */}
                         <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
                             {CATEGORIES.map((category) => {
-                                const IconComponent = typeof category.icon === "string" ? null : category.icon;
+                                const IconComponent = category.icon;
                                 const isSelected = selectedCategory === category.name;
 
                                 return (
@@ -137,11 +137,7 @@ export default function Page() {
                                                 : "border border-gray-200 bg-white text-gray-600 hover:border-[#69409A] hover:text-[#69409A]"
                                         }`}
                                     >
-                                        {IconComponent ? (
-                                            <IconComponent size={15} />
-                                        ) : (
-                                            <span>{category.icon as string}</span>
-                                        )}
+                                        <IconComponent size={15} />
                                         {category.name}
                                     </button>
                                 );
