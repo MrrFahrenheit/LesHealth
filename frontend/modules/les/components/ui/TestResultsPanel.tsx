@@ -130,29 +130,29 @@ export default function TestResultsPanel() {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Prueba o Estudio</label>
-                        <input required placeholder="Ej. Hemoglobina" value={formData.test_name} onChange={e => setFormData({ ...formData, test_name: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                        <input required placeholder="Ej. Hemoglobina" value={formData.test_name} onChange={e => setFormData({ ...formData, test_name: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Valor</label>
-                            <input required placeholder="Ej. 14.2" value={formData.value} onChange={e => setFormData({ ...formData, value: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                            <input required placeholder="Ej. 14.2" value={formData.value} onChange={e => setFormData({ ...formData, value: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Unidad (Opcional)</label>
-                            <input placeholder="Ej. g/dL" value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                            <input placeholder="Ej. g/dL" value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Estado / Interpretación</label>
-                            <input placeholder="Ej. Normal, Alto" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                            <input placeholder="Ej. Normal, Alto" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
                             <input required type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                         </div>
                     </div>
-                    <button disabled={createMutation.isPending} type="submit" min={new Date().toISOString().split("T")[0]} className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition mt-2">
+                    <button disabled={createMutation.isPending} type="submit" className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition mt-2">
                         {createMutation.isPending ? 'Guardando...' : 'Guardar resultado'}
                     </button>
                 </form>

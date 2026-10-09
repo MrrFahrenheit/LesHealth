@@ -152,7 +152,7 @@ export default function Page() {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Especialista</label>
-                        <select required value={formData.doctor_id} onChange={e => setFormData({ ...formData, doctor_id: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                        <select required value={formData.doctor_id} onChange={e => setFormData({ ...formData, doctor_id: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm">
                             <option value="">Selecciona un especialista</option>
                             {doctors?.map(doc => (
                                 <option key={doc.id} value={doc.id}>{doc.full_name} - {doc.les_doctor_profile?.specialty || 'General'}</option>
@@ -171,9 +171,9 @@ export default function Page() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Motivo de consulta (opcional)</label>
-                        <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" rows={3}></textarea>
+                        <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" rows={3}></textarea>
                     </div>
-                    <button disabled={createMutation.isPending} type="submit" min={new Date().toISOString().split("T")[0]} className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition">
+                    <button disabled={createMutation.isPending} type="submit" className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition">
                         {createMutation.isPending ? 'Agendando...' : 'Agendar cita'}
                     </button>
                 </form>

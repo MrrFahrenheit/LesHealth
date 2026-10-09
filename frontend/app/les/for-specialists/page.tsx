@@ -164,7 +164,7 @@ export default function ForSpecialistsPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Indicaciones Generales</label>
-                        <textarea required value={prescriptionData.description} onChange={e => setPrescriptionData({ ...prescriptionData, description: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" rows={2}></textarea>
+                        <textarea required value={prescriptionData.description} onChange={e => setPrescriptionData({ ...prescriptionData, description: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" rows={2}></textarea>
                     </div>
                     <div className="border-t pt-4">
                         <div className="flex items-center justify-between mb-3">
@@ -177,25 +177,25 @@ export default function ForSpecialistsPage() {
                             {medications.map((med, idx) => (
                                 <div key={idx} className="p-3 bg-gray-50 rounded-xl border border-gray-200 grid grid-cols-2 gap-3">
                                     <div className="col-span-2">
-                                        <input required placeholder="Nombre (ej. Paracetamol)" value={med.medication_name} onChange={e => { const m = [...medications]; m[idx].medication_name = e.target.value; setMedications(m); }} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                                        <input required placeholder="Nombre (ej. Paracetamol)" value={med.medication_name} onChange={e => { const m = [...medications]; m[idx].medication_name = e.target.value; setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                                     </div>
                                     <div>
-                                        <input required placeholder="Dosis (ej. 500mg)" value={med.dosage} onChange={e => { const m = [...medications]; m[idx].dosage = e.target.value; setMedications(m); }} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                                        <input required placeholder="Dosis (ej. 500mg)" value={med.dosage} onChange={e => { const m = [...medications]; m[idx].dosage = e.target.value; setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                                     </div>
                                     <div>
-                                        <input required placeholder="Frecuencia" value={med.frequency} onChange={e => { const m = [...medications]; m[idx].frequency = e.target.value; setMedications(m); }} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                                        <input required placeholder="Frecuencia" value={med.frequency} onChange={e => { const m = [...medications]; m[idx].frequency = e.target.value; setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                                     </div>
                                     <div>
-                                        <input type="number" min={1} required placeholder="Días" value={med.duration_days || ''} onChange={e => { const m = [...medications]; m[idx].duration_days = parseInt(e.target.value) || 7; setMedications(m); }} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                                        <input type="number" min={1} required placeholder="Días" value={med.duration_days || ''} onChange={e => { const m = [...medications]; m[idx].duration_days = parseInt(e.target.value) || 7; setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                                     </div>
                                     <div>
-                                        <input placeholder="Notas" value={med.notes} onChange={e => { const m = [...medications]; m[idx].notes = e.target.value; setMedications(m); }} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                                        <input placeholder="Notas" value={med.notes} onChange={e => { const m = [...medications]; m[idx].notes = e.target.value; setMedications(m); }} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <button disabled={prescriptionMutation.isPending} type="submit" min={new Date().toISOString().split("T")[0]} className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition mt-2">
+                    <button disabled={prescriptionMutation.isPending} type="submit" className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition mt-2">
                         {prescriptionMutation.isPending ? 'Guardando...' : 'Guardar y Enviar'}
                     </button>
                 </form>
@@ -206,7 +206,7 @@ export default function ForSpecialistsPage() {
                 <form onSubmit={handleSignSubmit} className="flex flex-col gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Signo</label>
-                        <select required value={signData.type} onChange={e => setSignData({ ...signData, type: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                        <select required value={signData.type} onChange={e => setSignData({ ...signData, type: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm">
                             <option value="peso">Peso (kg)</option>
                             <option value="presion_arterial">Presión Arterial (mmHg)</option>
                             <option value="frecuencia_cardiaca">Frecuencia Cardíaca (lpm)</option>
@@ -216,9 +216,9 @@ export default function ForSpecialistsPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Valor</label>
-                        <input required type="number" step="0.01" value={signData.value} onChange={e => setSignData({ ...signData, value: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Ej. 70.5" />
+                        <input required type="number" step="0.01" value={signData.value} onChange={e => setSignData({ ...signData, value: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Ej. 70.5" />
                     </div>
-                    <button disabled={signMutation.isPending} type="submit" min={new Date().toISOString().split("T")[0]} className="w-full bg-orange-500 text-white rounded-xl py-2.5 font-bold hover:bg-orange-600 transition mt-2">
+                    <button disabled={signMutation.isPending} type="submit" className="w-full bg-orange-500 text-white rounded-xl py-2.5 font-bold hover:bg-orange-600 transition mt-2">
                         {signMutation.isPending ? 'Guardando...' : 'Registrar'}
                     </button>
                 </form>
