@@ -17,6 +17,10 @@ export default function AuthPage() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [generalError, setGeneralError] = useState<string | null>(null);
 
+    const handleTabChange = (tab: TabType) => {
+        setActiveTab(tab);
+        setGeneralError(null); // Limpiar errores al cambiar de pestaña
+    }
 
     // Diccionario de configuración para cada pestaña
     const activeTabConfig = {
@@ -107,7 +111,7 @@ export default function AuthPage() {
                 {/* PESTAÑA: REGISTRARSE */}
                 <button
                     type="button"
-                    onClick={() => setActiveTab('register')}
+                    onClick={() => handleTabChange('register')}
                     className={`
                         w-1/2 pb-3 text-center transition-all duration-300 nunito text-lg focus:outline-none
                         ${activeTab === 'register'
@@ -122,7 +126,7 @@ export default function AuthPage() {
                 {/* PESTAÑA: INICIAR SESIÓN */}
                 <button
                     type="button"
-                    onClick={() => setActiveTab('login')}
+                    onClick={() => handleTabChange('login')}
                     className={`
                         w-1/2 pb-3 text-center transition-all duration-300 nunito text-lg focus:outline-none
                         ${activeTab === 'login'
