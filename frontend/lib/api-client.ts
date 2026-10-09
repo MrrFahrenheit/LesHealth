@@ -30,7 +30,9 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('token');
       // Redirigir al inicio de sesión (solo en cliente)
       if (typeof window !== 'undefined') {
-        window.location.href = '/get-started/auth';
+        if (window.location.pathname !== '/get-started/auth') {
+          window.location.href = '/get-started/auth';
+        }
       }
     }
     return Promise.reject(error);
