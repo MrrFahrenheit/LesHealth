@@ -4,9 +4,10 @@ import { toast } from 'sonner';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getMyPatients, Patient } from '@/modules/les/api/specialists.api';
 import { createPrescription } from '@/modules/les/api/prescriptions.api';
+import { getDoctorReservations, updateReservationStatus } from '@/modules/les/api/reservations.api';
 import { createSign } from '@/modules/les/api/signs.api';
 import { useUser } from '@/providers/userProvider';
-import { ArrowLeft, UserRoundCheck, Pill, Activity, Plus } from 'lucide-react';
+import { ArrowLeft, UserRoundCheck, Pill, Activity, Plus, CalendarDays, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -21,6 +22,7 @@ export default function ForSpecialistsPage() {
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
     const [isPrescriptionModalOpen, setIsPrescriptionModalOpen] = useState(false);
     const [isSignModalOpen, setIsSignModalOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState<'pacientes' | 'citas'>('pacientes');
 
     // Prescription form state
     const [prescriptionData, setPrescriptionData] = useState({ description: '', date: '' });
@@ -39,6 +41,20 @@ export default function ForSpecialistsPage() {
         queryKey: ['my-patients'],
         queryFn: getMyPatients,
         enabled: user?.role === 'doctor'
+    });
+
+    const { data: reservations, isLoading: isLoadingReservations, refetch: refetchReservations } = useQuery({
+        queryKey: ['doctor-reservations', user?.id],
+        queryFn: () => getDoctorReservations(user?.id || ''),
+        enabled: user?.role === 'doctor' && !!user?.id
+    });
+
+    const updateReservationMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string; status: string }) => updateReservationStatus(id, status),
+        onSuccess: () => {
+            refetchReservations();
+            toast.success("Estado de cita actualizado");
+        }
     });
 
     const prescriptionMutation = useMutation({
@@ -103,12 +119,31 @@ export default function ForSpecialistsPage() {
                 </div>
 
                 <div className="mt-8">
-                    <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <UserRoundCheck size={20} className="text-[#69409A]" />
-                        Mis Pacientes
-                    </h2>
+                    {/* Tabs */}
+                    <div className="flex gap-6 overflow-x-auto border-b border-gray-200 mb-6">
+                        <button
+                            onClick={() => setActiveTab('pacientes')}
+                            className={`relative whitespace-nowrap pb-3 text-sm font-medium transition ${activeTab === 'pacientes' ? 'text-[#69409A]' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <UserRoundCheck size={18} /> Mis Pacientes
+                            </div>
+                            {activeTab === 'pacientes' && <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#69409A]" />}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('citas')}
+                            className={`relative whitespace-nowrap pb-3 text-sm font-medium transition ${activeTab === 'citas' ? 'text-[#69409A]' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <CalendarDays size={18} /> Citas Pendientes
+                            </div>
+                            {activeTab === 'citas' && <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#69409A]" />}
+                        </button>
+                    </div>
 
-                    {isLoading ? (
+                    {activeTab === 'pacientes' && (
+                        <>
+                            {isLoading ? (
                         <Loader text="Cargando pacientes..." />
                     ) : patients && patients.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -151,6 +186,97 @@ export default function ForSpecialistsPage() {
                         </div>
                     ) : (
                         <EmptyState title="Sin pacientes" description="Aún no tienes pacientes bajo tu tutela. Cuando agenden una cita contigo o les emitas una receta, aparecerán aquí." />
+                    )}
+                        </>
+                    )}
+
+                    {activeTab === 'citas' && (
+                        <>
+                            {isLoadingReservations ? (
+                                <Loader text="Cargando citas..." />
+                            ) : reservations && reservations.length > 0 ? (
+                                <div className="space-y-4">
+                                    {reservations.map((reservation) => {
+                                        const d = new Date(reservation.reservation_date);
+                                        const month = d.toLocaleString('es', { month: 'short' }).toUpperCase();
+                                        const day = d.getDate().toString();
+                                        const weekday = d.toLocaleString('es', { weekday: 'short' });
+                                        const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                        const patientName = reservation.les_user_les_user_reservation_patient_idToles_user?.full_name || 'Paciente';
+                                        
+                                        return (
+                                            <article key={reservation.id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md">
+                                                <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+                                                    {/* Date */}
+                                                    <div className="flex h-24 w-full shrink-0 flex-col items-center justify-center rounded-xl bg-[#F4EEFA] lg:w-[74px]">
+                                                        <span className="text-[10px] font-bold text-[#69409A]">{month}</span>
+                                                        <span className="text-2xl font-bold text-[#69409A]">{day}</span>
+                                                        <span className="text-xs text-gray-500 capitalize">{weekday}</span>
+                                                        <span className="mt-1 text-[10px] font-medium text-gray-500">{time}</span>
+                                                    </div>
+
+                                                    {/* Patient Info */}
+                                                    <div className="flex min-w-0 flex-1 items-start gap-4">
+                                                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-purple-50 text-[#69409A] font-bold text-xl ring-4 ring-purple-50">
+                                                            {patientName.charAt(0).toUpperCase()}
+                                                        </div>
+
+                                                        <div className="min-w-0">
+                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                <h3 className="text-sm font-bold text-gray-900">{patientName}</h3>
+                                                                <span
+                                                                    className={`rounded-md px-2 py-1 text-[10px] font-semibold ${
+                                                                        reservation.status === "Confirmada"
+                                                                            ? "bg-emerald-50 text-emerald-600"
+                                                                            : reservation.status === "Cancelada" 
+                                                                            ? "bg-red-50 text-red-600"
+                                                                            : "bg-orange-50 text-orange-500"
+                                                                    }`}
+                                                                >
+                                                                    {reservation.status}
+                                                                </span>
+                                                            </div>
+
+                                                            <p className="mt-1 text-xs text-gray-500 line-clamp-1">
+                                                                {reservation.les_user_les_user_reservation_patient_idToles_user?.email || 'Sin email'}
+                                                            </p>
+
+                                                            <p className="mt-1 text-xs text-gray-600">
+                                                                <span className="font-semibold">Motivo:</span> {reservation.notes || 'Sin detalles adicionales'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Actions */}
+                                                    <div className="flex items-center gap-2 lg:ml-auto">
+                                                        {reservation.status === 'pending' && (
+                                                            <>
+                                                                <button 
+                                                                    type="button" 
+                                                                    onClick={() => updateReservationMutation.mutate({ id: reservation.id, status: 'Confirmada' })}
+                                                                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-emerald-200 px-4 py-2 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-50 lg:flex-none"
+                                                                >
+                                                                    <Check size={16} /> Confirmar
+                                                                </button>
+                                                                <button 
+                                                                    type="button" 
+                                                                    onClick={() => updateReservationMutation.mutate({ id: reservation.id, status: 'Cancelada' })}
+                                                                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-200 px-4 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-50 lg:flex-none"
+                                                                >
+                                                                    <X size={16} /> Cancelar
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <EmptyState title="Sin citas pendientes" description="No hay citas agendadas por tus pacientes." />
+                            )}
+                        </>
                     )}
                 </div>
             </div>

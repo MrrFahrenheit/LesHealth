@@ -7,9 +7,13 @@ export type Reservation = {
   reservation_date: string;
   status: string;
   notes: string;
-  les_user_les_user_reservation_doctor_idToles_user: {
+  les_user_les_user_reservation_doctor_idToles_user?: {
     full_name: string;
     specialty: string;
+  };
+  les_user_les_user_reservation_patient_idToles_user?: {
+    full_name: string;
+    email: string;
   };
 };
 
@@ -29,3 +33,7 @@ export const updateReservationStatus = async (id: string, status: string) => {
   return data;
 };
 
+export const getDoctorReservations = async (doctorId: string): Promise<Reservation[]> => {
+  const { data } = await apiClient.get(`/reservation/doctor/${doctorId}`);
+  return data;
+};
