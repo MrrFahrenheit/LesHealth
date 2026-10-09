@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
+import { NotificationService } from '../notification/notification.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
-import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ReservationService {
@@ -14,6 +14,19 @@ export class ReservationService {
   async create(createReservationDto: CreateReservationDto, patient_id: string) {
     try {
       const { doctor_id, reservation_date, notes } = createReservationDto;
+      /*
+      const isAlredyDoctorAsigned = await this.prismaService.les_user_reservation.findFirst({
+        where: {
+          doctor_id,
+          patient_id,
+          reservation_date: new Date(reservation_date)
+        }
+      });
+
+      if(!isAlredyDoctorAsigned){
+        await this.prismaService.les_doctor_profile.update({})
+      }
+      */
       const reservation = await this.prismaService.les_user_reservation.create({
         data: {
           reservation_date,
