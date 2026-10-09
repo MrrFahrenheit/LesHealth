@@ -1,4 +1,5 @@
 "use client";
+import { toast } from 'sonner';
 import React, { useState } from "react";
 import { uploadImageToR2 } from "@/lib/upload-image";
 import { apiClient } from "@/lib/api-client";
@@ -24,7 +25,7 @@ export default function VerificationPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!frontImage || !backImage) {
-            alert("Debes subir ambas caras de la cédula");
+            toast("Debes subir ambas caras de la cédula");
             return;
         }
 
@@ -45,7 +46,7 @@ export default function VerificationPage() {
             setSuccess(true);
         } catch (error) {
             console.error(error);
-            alert("Error al enviar la solicitud. Intenta nuevamente.");
+            toast("Error al enviar la solicitud. Intenta nuevamente.");
         } finally {
             setLoading(false);
         }

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from 'sonner';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Activity, Check, Droplets, Heart, Moon, PlusIcon, Thermometer, Trash2, Weight, X } from "lucide-react";
 import { ReactNode, useEffect, useMemo, useState } from "react";
@@ -20,7 +21,6 @@ type SignUI = {
     name: string;
 };
 
-// 1. MEJORA: Este es el tipo real que devuelve tu base de datos/API
 type SignRecord = {
     id: string;
     patient_id: string;
@@ -43,12 +43,9 @@ export default function HealthSignsPanel() {
         value: 0
     });
 
-    // 2. MEJORA: Tipamos correctamente el estado con los datos reales de la BD
     const [userSigns, setUserSigns] = useState<any>();
 
-    // Estado para saber qué ID estamos editando actualmente
     const [editingId, setEditingId] = useState<string | null>(null);
-    // Estado para guardar temporalmente lo que el usuario escribe antes de confirmar
     const [editValue, setEditValue] = useState<number | string>("");
 
     const { data, refetch, isLoading } = useQuery({
@@ -97,9 +94,9 @@ export default function HealthSignsPanel() {
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('¿Seguro que deseas eliminar este registro?')) {
+        toast('¿Seguro que deseas eliminar este registro?', { action: { label: 'Eliminar', onClick: () => {
             deleteSignMutation.mutate(id);
-        }
+        } } });
     };
 
     useEffect(() => {
@@ -197,7 +194,6 @@ export default function HealthSignsPanel() {
             }),
         }));
     }, [userSigns, signSelected.name]);
-    // ^ React solo recalculará esto si `userSigns` o `signSelected.name` cambian.
 
     const getLatestValue = (signName: string, fallbackValue: string) => {
         if (!userSigns) return fallbackValue;
@@ -248,13 +244,11 @@ export default function HealthSignsPanel() {
 
                 <div className="w-full flex flex-col sm:w-4/5 min-h-[250px] sm:h-80 items-center mt-4">
 
-                    {/* 4. MEJORA: Pasamos los datos filtrados en lugar de intentar acceder como objeto */}
                     {chartData.length <= 0 ? <div className="flex w-full justify-center p-4 text-sm text-gray-400">
                         No hay Datos para dibujar.
                     </div> :
                         <Chart data={chartData} />
                     }
-                    {/* ... (Tu formulario inferior se mantiene igual) ... */}
                     <div className="flex flex-col py-2 w-full">
 
 
@@ -287,7 +281,6 @@ export default function HealthSignsPanel() {
                             </div>
 
                             {/* LISTADO DE HISTORIAL CON SCROLL */}
-                            {/* max-h-[200px] limita el alto, overflow-y-auto crea el scroll */}
                             <div className="flex flex-col gap-2 w-full max-h-[150px] overflow-y-auto pr-1">
                                 {chartData.length > 0 ? (
                                     [...chartData].reverse().map((current) => (
@@ -326,7 +319,6 @@ export default function HealthSignsPanel() {
                                                         </span>
                                                     )}
 
-                                                    {/* Formateamos la fecha */}
                                                     <span className="text-xs text-gray-400">
                                                         {new Date(current.created_at).toLocaleDateString('es-ES', {
                                                             day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
@@ -335,7 +327,6 @@ export default function HealthSignsPanel() {
                                                 </div>
                                             </div>
 
-                                            {/* BOTONES DE ACCIÓN (Derecha) */}
                                             <div className="flex items-center gap-1">
                                                 {editingId === current.id ? (
                                                     <>
@@ -347,7 +338,6 @@ export default function HealthSignsPanel() {
                                                         </button>
                                                     </>
                                                 ) : (
-                                                    // El botón de basura se muestra más suave y se oscurece al pasar el mouse por encima del div (group-hover)
                                                     <button
                                                         onClick={() => handleDelete(current.id)}
                                                         className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"

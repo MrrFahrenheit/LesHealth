@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from 'sonner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Loader } from '@/components/ui/Loader';
 import { Modal } from '@/components/ui/Modal';
@@ -102,9 +103,9 @@ export default function Page() {
                                         key={appointment.id}
                                         appointment={appointment}
                                         onCancel={(id) => {
-                                            if (window.confirm("¿Seguro que deseas cancelar esta cita?")) {
+                                            toast("¿Seguro que deseas cancelar esta cita?", { action: { label: "Cancelar cita", onClick: () => {
                                                 cancelMutation.mutate(id);
-                                            }
+                                            } } });
                                         }}
                                     />
                                 ))
@@ -151,7 +152,7 @@ export default function Page() {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Especialista</label>
-                        <select required value={formData.doctor_id} onChange={e => setFormData({ ...formData, doctor_id: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                        <select required value={formData.doctor_id} onChange={e => setFormData({ ...formData, doctor_id: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm">
                             <option value="">Selecciona un especialista</option>
                             {doctors?.map(doc => (
                                 <option key={doc.id} value={doc.id}>{doc.full_name} - {doc.les_doctor_profile?.specialty || 'General'}</option>
@@ -161,18 +162,18 @@ export default function Page() {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-                            <input required type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                            <input required type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Hora</label>
-                            <input required type="time" value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
+                            <input required type="time" value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" />
                         </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Motivo de consulta (opcional)</label>
-                        <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2 text-sm" rows={3}></textarea>
+                        <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} min={new Date().toISOString().split("T")[0]} className="w-full border border-gray-300 rounded-lg p-2 text-sm" rows={3}></textarea>
                     </div>
-                    <button disabled={createMutation.isPending} type="submit" className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition">
+                    <button disabled={createMutation.isPending} type="submit" min={new Date().toISOString().split("T")[0]} className="w-full bg-[#69409A] text-white rounded-xl py-2.5 font-bold hover:bg-[#583383] transition">
                         {createMutation.isPending ? 'Agendando...' : 'Agendar cita'}
                     </button>
                 </form>

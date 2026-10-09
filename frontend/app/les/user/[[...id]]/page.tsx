@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from 'sonner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Loader } from '@/components/ui/Loader';
 import { getUserProfile, updateUserProfile } from '@/modules/les/api/users.api';
@@ -119,7 +120,7 @@ export default function Page() {
             await updateMutation.mutateAsync({ avatar_url: uploadedUrl });
         } catch (error) {
             console.error("Error al subir foto:", error);
-            alert("Error al actualizar la foto de perfil.");
+            toast("Error al actualizar la foto de perfil.");
         } finally {
             setIsUploadingPhoto(false);
         }

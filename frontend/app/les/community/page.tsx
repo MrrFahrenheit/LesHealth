@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from 'sonner';
 import { addComment, createPost, deleteComment, deletePost, getComments, getGroups, getPosts, toggleLikePost, updatePost } from "@/modules/les/api/community.api";
 import { useUser } from "@/providers/userProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,9 +29,9 @@ const trendingTopics: [string, number][] = [
 export default function Page() {
     const currentUser = useUser();
     const queryClient = useQueryClient();
-    const [composerText, setComposerText] = useState("");
+    const [composerText, setComposerText] = useState<string>("");
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
+    const [isUploading, setIsUploading] = useState<boolean>(false);
 
     const { data: postsData, isLoading: loadingPosts } = useQuery({
         queryKey: ["community_posts"],
@@ -181,9 +182,8 @@ export default function Page() {
                                 </button>
                                 <button 
                                     onClick={() => {
-                                        if (confirm("¿Seguro que quieres eliminar este post?")) {
-                                            deletePostMutation.mutate(post.id);
-                                        }
+                                        toast("¿Seguro que quieres eliminar este post?", { action: { label: "Eliminar", onClick: () => {
+                                            deletePostMutation.mutate(post.id); } } });
                                         setShowMenu(false);
                                     }}
                                     className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-red-600 hover:bg-red-50"
@@ -307,7 +307,7 @@ export default function Page() {
                                                 {currentUser?.id === c.author_id && (
                                                     <button 
                                                         onClick={() => {
-                                                            if (confirm("¿Eliminar comentario?")) deleteCommentMutation.mutate(c.id);
+                                                            toast("¿Eliminar comentario?", { action: { label: "Eliminar", onClick: () => deleteCommentMutation.mutate(c.id) } });
                                                         }}
                                                         className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                                     >

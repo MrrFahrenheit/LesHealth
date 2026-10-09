@@ -8,6 +8,11 @@ export function PrescriptionCard({ prescription, onEdit }: { prescription: Presc
     const queryClient = useQueryClient();
     const d = new Date(prescription.prescribed_date);
     const dateStr = d.toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
+    const isActive = prescription.les_prescription_item?.some(item => {
+        const endDate = new Date(prescription.prescribed_date);
+        endDate.setDate(endDate.getDate() + (item.duration_days || 0));
+        return endDate >= new Date();
+    }) ?? true;
     const [menuOpen, setMenuOpen] = useState(false);
 
     const deleteMutation = useMutation({
@@ -22,9 +27,9 @@ export function PrescriptionCard({ prescription, onEdit }: { prescription: Presc
     });
 
     const handleDelete = () => {
-        if (confirm("¿Estás seguro de que deseas eliminar esta prescripción?")) {
+        toast("¿Eliminar prescripción?", { action: { label: "Eliminar", onClick: () => {
             deleteMutation.mutate();
-        }
+        } } });
     };
 
     return (
@@ -41,9 +46,15 @@ export function PrescriptionCard({ prescription, onEdit }: { prescription: Presc
                                 <h3 className="text-base font-bold text-gray-900">
                                     {prescription.les_user_les_user_prescription_doctor_idToles_user?.full_name || 'Médico'}
                                 </h3>
-                                <span className="rounded-md px-2 py-1 text-[10px] font-semibold bg-emerald-50 text-emerald-600">
-                                    Activa
-                                </span>
+                                {isActive ? (
+                                    <span className="rounded-md px-2 py-1 text-[10px] font-semibold bg-emerald-50 text-emerald-600">
+                                        Activa
+                                    </span>
+                                ) : (
+                                    <span className="rounded-md px-2 py-1 text-[10px] font-semibold bg-gray-100 text-gray-600">
+                                        Finalizada
+                                    </span>
+                                )}
                             </div>
 
                             <p className="mt-1 text-sm font-medium text-[#69409A]">
